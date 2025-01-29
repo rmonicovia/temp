@@ -1,5 +1,5 @@
 BEGIN TRANSACTION;
-CREATE TABLE all_repos (name, is_archived, description, url);
+CREATE TABLE all_repos (name, archived, description, url);
 INSERT INTO "all_repos" VALUES('.github',1,'GitHub Actions Workflow templates','https://github.com/viavarejo-internal/.github');
 INSERT INTO "all_repos" VALUES('ApiJarvisCDP',0,'Business - Clube de Prêmios','https://github.com/viavarejo-internal/ApiJarvisCDP');
 INSERT INTO "all_repos" VALUES('BenchmarkMontagem',0,'Aplicação para teste de benchmark','https://github.com/viavarejo-internal/BenchmarkMontagem');
@@ -813,7 +813,7 @@ INSERT INTO "all_repos" VALUES('xl-release-action',0,'GitHub Action to start rel
 INSERT INTO "all_repos" VALUES('arq-ref-java-batch',0,'[SPRING] Base for Batch Process with Java, Spring Boot and Batch. Cron-Job with yaml in kustomize','https://github.com/viavarejo-internal/arq-ref-java-batch');
 INSERT INTO "all_repos" VALUES('convair-actions',0,'Nova versão da biblioteca Convair, agora para GitHub Actions.','https://github.com/viavarejo-internal/convair-actions');
 INSERT INTO "all_repos" VALUES('vv-checkout-ngx',0,'Front para complementar informações adicionais simuladas no simulador e inicio do processo do novo fechemanto','https://github.com/viavarejo-internal/vv-checkout-ngx');
-CREATE TABLE projects (name, github_access);
+CREATE TABLE "projects" (name, github_access);
 INSERT INTO "projects" VALUES('consolidate-pedido',0);
 INSERT INTO "projects" VALUES('produto-event-sync',1);
 INSERT INTO "projects" VALUES('receiver-pedido-fidc-corp',0);
