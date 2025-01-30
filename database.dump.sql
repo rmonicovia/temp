@@ -854,7 +854,7 @@ INSERT INTO "links" VALUES('vv-jornada-gestao-pedidos-ngx','https://backstage.gr
 INSERT INTO "links" VALUES('vv-jornada-home-ngx','https://backstage.grupocasasbahia.com.br/catalog/default/component/vv-jornada-home-ngx');
 INSERT INTO "links" VALUES('vv-jornada-painel-loja-ngx','https://backstage.grupocasasbahia.com.br/catalog/default/component/vv-jornada-painel-loja-ngx');
 INSERT INTO "links" VALUES('vv-jornada-tradein-ngx','https://backstage.grupocasasbahia.com.br/catalog/default/component/vv-jornada-tradein-ngx');
-INSERT INTO "links" VALUES('robot-desmembramento-pv-ppf','https://backstage.grupocasasbahia.com.br/catalog/default/component/sdp-robot-desmembramento-pv-ppf');
+INSERT INTO "links" VALUES('sdp-robot-desmembramento-pv-ppf','https://backstage.grupocasasbahia.com.br/catalog/default/component/sdp-robot-desmembramento-pv-ppf');
 INSERT INTO "links" VALUES('vv-jornada-simulador-ngx-stable','https://backstage.grupocasasbahia.com.br/catalog/default/component/vv-jornada-simulador-ngx');
 INSERT INTO "links" VALUES('vv-viamais-aprovacao-api','https://backstage.grupocasasbahia.com.br/catalog/default/component/vv-viamais-aprovacao');
 INSERT INTO "links" VALUES('vv-viamais-calculadora-pagamento-api-stable','https://backstage.grupocasasbahia.com.br/catalog/default/component/vv-viamais-calculadora-pagamento-api');
@@ -866,7 +866,7 @@ INSERT INTO "project" VALUES('consolidate-pedido',0);
 INSERT INTO "project" VALUES('produto-event-sync',1);
 INSERT INTO "project" VALUES('receiver-pedido-fidc-corp',0);
 INSERT INTO "project" VALUES('receiver-pedido-iidr-segregate-d',1);
-INSERT INTO "project" VALUES('robot-desmembramento-pv-ppf',0);
+INSERT INTO "project" VALUES('sdp-robot-desmembramento-pv-ppf',1);
 INSERT INTO "project" VALUES('sdp-metricas',1);
 INSERT INTO "project" VALUES('trk-receiver-pedido',0);
 INSERT INTO "project" VALUES('vv-adm',1);
