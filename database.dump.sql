@@ -927,7 +927,7 @@ INSERT INTO "project" VALUES('vv-viamais-negociacao-api',1);
 INSERT INTO "project" VALUES('vv-viamais-notificacao-api',1);
 INSERT INTO "project" VALUES('vv-viamais-simulador-api-stable',0);
 INSERT INTO "project" VALUES('vv-vitrine',1);
-CREATE TABLE squad (name, backstage_link);
+CREATE TABLE squad (name, backstage);
 INSERT INTO "squad" VALUES('CDC Lojas','https://backstage.grupocasasbahia.com.br/catalog/default/group/squad-cdc-lojas');
 INSERT INTO "squad" VALUES('CRM Figital Vendedor Online','https://backstage.grupocasasbahia.com.br/catalog/default/group/squad-crm-figital-vendedor-online');
 INSERT INTO "squad" VALUES('Operações de Vendas','https://backstage.grupocasasbahia.com.br/catalog/default/group/squad-operacoes-de-vendas');
