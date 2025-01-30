@@ -916,13 +916,13 @@ INSERT INTO "links" VALUES('vv-viamais-negociacao-api','https://github.com/viava
 INSERT INTO "links" VALUES('vv-viamais-notificacao-api','https://github.com/viavarejo-internal/vv-viamais-notificacao-api','github');
 INSERT INTO "links" VALUES('vv-vitrine','https://github.com/viavarejo-internal/vv-vitrine','github');
 CREATE TABLE "project" (name, github_access, path, kind);
-INSERT INTO "project" VALUES('consolidate-pedido',0,NULL,'cronjob');
+INSERT INTO "project" VALUES('consolidate-pedido',0,'/home/rmonico/repos/sdp-consolidate/release','cronjob');
 INSERT INTO "project" VALUES('produto-event-sync',1,'/home/rmonico/repos/sync/novasync/produto-event-sync','cronjob');
-INSERT INTO "project" VALUES('receiver-pedido-fidc-corp',0,NULL,'cronjob');
+INSERT INTO "project" VALUES('receiver-pedido-fidc-corp',0,'/home/rmonico/repos/sdp-receiver-fidc-corp/release','cronjob');
 INSERT INTO "project" VALUES('receiver-pedido-iidr-segregate-d',1,'/home/rmonico/repos/receiver-pedido-iidr-segregate-d/release','cronjob');
 INSERT INTO "project" VALUES('sdp-robot-desmembramento-pv-ppf',1,'/home/rmonico/repos/sdp-robot-desmembramento-pv-ppf/release','cronjob');
 INSERT INTO "project" VALUES('sdp-metricas',1,'/home/rmonico/repos/sdp-metricas/release','cronjob');
-INSERT INTO "project" VALUES('trk-receiver-pedido',0,NULL,'cronjob');
+INSERT INTO "project" VALUES('trk-receiver-pedido',0,'/home/rmonico/repos/sdp-trk-receiver/release','cronjob');
 INSERT INTO "project" VALUES('vv-adm',1,'/home/rmonico/repos/adm/task','api');
 INSERT INTO "project" VALUES('vv-admin-apigw',1,'/home/rmonico/repos/admin-apigw/task','apigw');
 INSERT INTO "project" VALUES('vv-apigw',1,'/home/rmonico/repos/apigw/vendemais','apigw');
