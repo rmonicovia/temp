@@ -1,0 +1,42 @@
+all_repos
+---
+name
+archived
+description
+url
+
+
+project
+---
+name -> all_repos.name
+github_access
+
+
+deployments
+---
+project -> project.name
+name
+
+
+links
+---
+project -> project.name
+backstage
+
+
+squad
+---
+name
+backstage
+
+
+squad_contato
+---
+squad -> squad.name
+contato
+
+
+project_squad
+---
+project -> project.name
+squad -> squad.name
