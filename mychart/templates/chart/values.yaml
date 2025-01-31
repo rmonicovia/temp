@@ -1,5 +1,3 @@
-{{- $ktmz_deployment := (.Files.Get "target/kustomize/base/deployment.yaml" | fromYaml) }}
-{{- $ktmz_service := (.Files.Get "target/kustomize/base/service.yaml" | fromYaml) }}
 azure: false
 
 pod:
@@ -24,10 +22,12 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+{{- $ktmz_service := (.Files.Get "target/kustomize/base/service.yaml" | fromYaml) }}
 service:
   type: {{ $ktmz_service.spec.type }}
   port: {{ (index $ktmz_service.spec.ports 0).port }}
 
+{{- $ktmz_deployment := (.Files.Get "target/kustomize/base/deployment.yaml" | fromYaml) }}
 container:
   securityContext: {{ $ktmz_deployment.spec.template.spec.securityContext | toYaml }}
 
@@ -59,39 +59,25 @@ container:
   {{- end }}
 
   image:
-    registry: harbor.viavarejo.com.br
-    pullPolicy: IfNotPresent
-    # Overrides the image tag whose default is the chart appVersion.
+    registry: {{ index (regexSplit "/" $container.image -1) 0 }}
+    pullPolicy: {{ $container.imagePullPolicy }}
+    repository: {{ index (regexSplit "/" $container.image -1) 1 }}
     tag: ""
 
+  resources:
+{{ $container.resources | toYaml | indent 4 }}
+
   livenessProbe:
-    failureThreshold: 3
-    httpGet:
-      path: /actuator/health
-      port: 8080
-      scheme: HTTP
-    initialDelaySeconds: 300
-    periodSeconds: 30
-    successThreshold: 1
-    timeoutSeconds: 5
+{{ $container.livenessProbe | toYaml | indent 4 }}
 
   readinessProbe:
-    failureThreshold: 3
-    httpGet:
-      path: /actuator/health
-      port: 8080
-      scheme: HTTP
-    periodSeconds: 20
-    successThreshold: 3
-    timeoutSeconds: 3
+{{ $container.readinessProbe | toYaml | indent 4 }}
 
-  resources:
-    limits:
-      cpu: 600m
-      memory: 1000Mi
-    requests:
-      cpu: 300m
-      memory: 700Mi
-
+{{ $ktmz_configmap := (.Files.Get "target/kustomize/base/configmap.yaml" | fromYaml) -}}
 configmap:
+{{- if $ktmz_configmap.data }}
+  data:
+{{ $ktmz_configmap.data | toYaml | indent 4 }}
+{{ else }}
   data: {}
+{{- end -}}
