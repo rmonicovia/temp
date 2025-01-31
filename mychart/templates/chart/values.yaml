@@ -1,0 +1,97 @@
+{{- $ktmz_deployment := (.Files.Get "target/kustomize/base/deployment.yaml" | fromYaml) }}
+{{- $ktmz_service := (.Files.Get "target/kustomize/base/service.yaml" | fromYaml) }}
+azure: false
+
+pod:
+  imagePullSecrets: []
+  securityContext: {}
+  annotations: {}
+  tolerations: []
+  affinity: {}
+
+hpa: {}
+
+fullnameOverride: ""
+
+nameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+service:
+  type: {{ $ktmz_service.spec.type }}
+  port: {{ (index $ktmz_service.spec.ports 0).port }}
+
+container:
+  securityContext: {{ $ktmz_deployment.spec.template.spec.securityContext | toYaml }}
+
+  nodeSelector:
+    app: {{ .Values.node_selector }}
+
+  {{ $container := (index $ktmz_deployment.spec.template.spec.containers 0) -}}
+
+  {{ if eq (include "someItemHasKey" (list $container.envFrom "configMapRef")) "true" -}}
+  configMaps:
+    {{- range $def := $container.envFrom }}
+      {{- if hasKey $def "configMapRef" }}
+    - {{ $def.configMapRef.name }}
+      {{- end }}
+    {{- end }}
+  {{- else -}}
+  configMaps: []
+  {{- end }}
+
+  {{ if eq (include "someItemHasKey" (list $container.envFrom "secretMapRef")) "true" -}}
+  secrets:
+    {{- range $def := $container.envFrom }}
+      {{- if hasKey $def "secretMapRef" }}
+    - {{ $def.secretMapRef.name }}
+      {{- end }}
+    {{- end }}
+  {{- else -}}
+  secrets: []
+  {{- end }}
+
+  image:
+    registry: harbor.viavarejo.com.br
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ""
+
+  livenessProbe:
+    failureThreshold: 3
+    httpGet:
+      path: /actuator/health
+      port: 8080
+      scheme: HTTP
+    initialDelaySeconds: 300
+    periodSeconds: 30
+    successThreshold: 1
+    timeoutSeconds: 5
+
+  readinessProbe:
+    failureThreshold: 3
+    httpGet:
+      path: /actuator/health
+      port: 8080
+      scheme: HTTP
+    periodSeconds: 20
+    successThreshold: 3
+    timeoutSeconds: 3
+
+  resources:
+    limits:
+      cpu: 600m
+      memory: 1000Mi
+    requests:
+      cpu: 300m
+      memory: 700Mi
+
+configmap:
+  data: {}
