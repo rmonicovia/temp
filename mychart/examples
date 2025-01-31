@@ -1,0 +1,41 @@
+https://helm-playground.com/cheatsheet.html
+
+  {{- $v := ("key: value" | fromYaml) }}
+  key: {{ $v.key }}
+
+  {{- $vv := (index $ktmz_deployment.spec.template.spec.containers 0) }}
+  vv: {{ $vv }}
+
+  {{- $vvv := (index $ktmz_deployment.spec.template.spec.containers 0) }}
+  vvv: {{ (index $vvv.envFrom 0).configMapRef.name }}
+
+  envFrom:
+      {{- range (index $ktmz_deployment.spec.template.spec.containers 0).envFrom }}
+      - {{ .configMapRef.name }}
+      {{- end }}
+
+  {{- $has_secrets := false }}
+  {{- range $container.envFrom }}
+    {{- if hasKey $ "secretRef" }}
+      {{- $has_secrets := true }}
+    {{- end }}
+  {{- end }}
+
+  {{- if $has_secrets }}
+  secrets:
+    {{- range $container.envFrom }}
+    - {{ .secretRef.name }}
+    {{- end }}
+  {{- end }}
+
+{{/*
+Define um subtemplate
+*/}}
+{{- define "teste" -}}
+{{- $p1 := index . 0 -}}
+{{- $p2 := index . 1 -}}
+{{ print "teste - " $p1 $p2 | quote }}
+{{- end -}}
+
+{{/* Inclui o template acima passando dois parâmetros /*}}
+  teste: {{ include "teste" (list "abc" "whatever") }}
