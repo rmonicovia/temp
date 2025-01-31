@@ -22,12 +22,12 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
-{{- $ktmz_service := (.Files.Get "target/kustomize/base/service.yaml" | fromYaml) }}
+{{ $ktmz_service := (.Files.Get "target/kustomize/base/service.yaml" | fromYaml) -}}
 service:
   type: {{ $ktmz_service.spec.type }}
   port: {{ (index $ktmz_service.spec.ports 0).port }}
 
-{{- $ktmz_deployment := (.Files.Get "target/kustomize/base/deployment.yaml" | fromYaml) }}
+{{ $ktmz_deployment := (.Files.Get "target/kustomize/base/deployment.yaml" | fromYaml) -}}
 container:
   securityContext: {{ $ktmz_deployment.spec.template.spec.securityContext | toYaml }}
 
