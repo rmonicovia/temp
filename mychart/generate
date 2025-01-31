@@ -1,3 +1,6 @@
 #!/usr/bin/bash
 
-helm template --output-dir output --set 'v=algo' .
+chart_path="$(dirname "$(realpath "$0")")"
+echo "Chart path: \"$chart_path\""
+
+helm template --output-dir output --set 'node_selector=vendemais' "$chart_path"
