@@ -1,0 +1,3 @@
+#!/usr/bin/bash
+
+helm template --output-dir output --set 'v=algo' .
