@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ .Release.Name }}-configmap
-  v: {{ .Values.v }}-values
-
-external:
-  value_of_key: {{ (.Files.Get "data/data.yaml" | fromYaml).key }}
