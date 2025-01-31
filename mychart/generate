@@ -3,4 +3,4 @@
 chart_path="$(dirname "$(realpath "$0")")"
 echo "Chart path: \"$chart_path\""
 
-helm template --output-dir output --set 'node_selector=vendemais' "$chart_path"
+helm template --output-dir output --set 'app_name=vv-adm,node_selector=vendemais' "$chart_path"
