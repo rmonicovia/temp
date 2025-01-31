@@ -5,6 +5,4 @@ metadata:
   v: {{ .Values.v }}-values
 
 external:
-  {{ $file := .Files.Get "data/data.yaml" }}
-  {{ $yfile := $file | fromYaml }}
-  value_of_key: {{ $yfile.key }}
+  value_of_key: {{ (.Files.Get "data/data.yaml" | fromYaml).key }}
