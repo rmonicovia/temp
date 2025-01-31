@@ -1,0 +1,28 @@
+{{ $ktmz_deployment := (.Files.Get "target/kustomize/overlays/hlg/deployment.yaml" | fromYaml) -}}
+{{- if $ktmz_deployment -}}
+{{ $container = index $ktmz_deployment.spec.template.spec.containers 0 }}
+container:
+  secrets: {{ $container | toString | quote }}
+
+  resources: {}
+{{- end -}}
+
+{{ $ktmz_hpa := (.Files.Get "target/kustomize/overlays/hlg/hpa.yaml" | fromYaml) -}}
+{{ if or (hasKey $ktmz_hpa.spec "minReplicas") (hasKey $ktmz_hpa.spec "maxReplicas") -}}
+hpa:
+  {{- if $ktmz_hpa.spec.minReplicas }}
+  minReplicas: {{ $ktmz_hpa.spec.minReplicas }}
+  {{ end -}}
+  {{- if $ktmz_hpa.spec.maxReplicas -}}
+  maxReplicas: {{ $ktmz_hpa.spec.maxReplicas }}
+  {{ end -}}
+{{ end -}}
+
+{{- $ktmz_configmap := (.Files.Get "target/kustomize/overlays/hlg/configmap.yaml" | fromYaml) }}
+configmap:
+{{- if $ktmz_configmap.data }}
+  data:
+{{ $ktmz_configmap.data | toYaml | indent 4 }}
+{{ else }}
+  data: {}
+{{- end -}}
