@@ -1,11 +1,48 @@
 {{ $ktmz_deployment := (.Files.Get "target/kustomize/overlays/hlg/deployment.yaml" | fromYaml) -}}
-{{- if $ktmz_deployment -}}
-{{ $container = index $ktmz_deployment.spec.template.spec.containers 0 }}
 container:
-  secrets: {{ $container | toString | quote }}
+  securityContext: {{ $ktmz_deployment.spec.template.spec.securityContext | toYaml }}
 
-  resources: {}
-{{- end -}}
+  nodeSelector:
+    app: {{ .Values.node_selector }}
+
+  {{ $container := index $ktmz_deployment.spec.template.spec.containers 0 -}}
+
+  {{ if eq (include "someItemHasKey" (list $container.envFrom "configMapRef")) "true" -}}
+  configMaps:
+    {{- range $def := $container.envFrom }}
+      {{- if hasKey $def "configMapRef" }}
+    - {{ $def.configMapRef.name }}
+      {{- end }}
+    {{- end }}
+  {{- else -}}
+  configMaps: []
+  {{- end }}
+
+  {{ if eq (include "someItemHasKey" (list $container.envFrom "secretMapRef")) "true" -}}
+  secrets:
+    {{- range $def := $container.envFrom }}
+      {{- if hasKey $def "secretMapRef" }}
+    - {{ $def.secretMapRef.name }}
+      {{- end }}
+    {{- end }}
+  {{- else -}}
+  secrets: []
+  {{- end }}
+
+  image:
+    registry: {{ index (regexSplit "/" $container.image -1) 0 }}
+    pullPolicy: {{ $container.imagePullPolicy }}
+    repository: {{ index (regexSplit "/" $container.image -1) 1 }}
+    tag: ""
+
+  resources:
+{{ $container.resources | toYaml | indent 4 }}
+
+  livenessProbe:
+{{ $container.livenessProbe | toYaml | indent 4 }}
+
+  readinessProbe:
+{{ $container.readinessProbe | toYaml | indent 4 }}
 
 {{ $ktmz_hpa := (.Files.Get "target/kustomize/overlays/hlg/hpa.yaml" | fromYaml) -}}
 {{ if or (hasKey $ktmz_hpa.spec "minReplicas") (hasKey $ktmz_hpa.spec "maxReplicas") -}}
