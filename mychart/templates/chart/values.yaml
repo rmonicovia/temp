@@ -42,7 +42,8 @@ service:
 
 {{ $ktmz_deployment := (.Files.Get (print "target/kustomize/" $.Values.base_path "/deployment.yaml") | fromYaml) }}
 container:
-  securityContext: {{ $ktmz_deployment.spec.template.spec.securityContext | toYaml }}
+  securityContext:
+{{ $ktmz_deployment.spec.template.spec.securityContext | toYaml | indent 4 }}
 
   nodeSelector:
     app: {{ .Values.node_selector }}
