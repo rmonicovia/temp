@@ -944,7 +944,7 @@ INSERT INTO "project" VALUES('vv-desconto',1,'/home/rmonico/repos/desconto/task'
 INSERT INTO "project" VALUES('vv-entrega',1,'/home/rmonico/repos/entrega/task','api');
 INSERT INTO "project" VALUES('vv-entrega-evt-sourcing',1,'/home/rmonico/repos/entrega-evt-sourcing/task','cronjob');
 INSERT INTO "project" VALUES('vv-estoque',1,'/home/rmonico/repos/estoque/task','api');
-INSERT INTO "project" VALUES('vv-farol',1,'/home/rmonico/repos/farol-adm/task','api');
+INSERT INTO "project" VALUES('vv-farol',1,'/home/rmonico/repos/farol/task','api');
 INSERT INTO "project" VALUES('vv-farol-adm',1,'/home/rmonico/repos/farol-adm/task','api');
 INSERT INTO "project" VALUES('vv-frontgw',1,'/home/rmonico/repos/frontgw/task','front');
 INSERT INTO "project" VALUES('vv-gestao-pedido',1,'/home/rmonico/repos/gestao-pedido/task','api');
@@ -966,8 +966,8 @@ INSERT INTO "project" VALUES('vv-preco-concorrencia',1,'/home/rmonico/repos/prec
 INSERT INTO "project" VALUES('vv-produto',1,'/home/rmonico/repos/produto/task','api');
 INSERT INTO "project" VALUES('vv-sms',1,'/home/rmonico/repos/sms/task','api');
 INSERT INTO "project" VALUES('vv-venda-api',1,'/home/rmonico/repos/venda-api/task','api');
-INSERT INTO "project" VALUES('vv-viamais-admin',1,'/home/rmonico/repos/admin/admin-front','api');
-INSERT INTO "project" VALUES('vv-viamais-admin-campanha',1,'/home/rmonico/repos/admin/campanha/migracao/vv-viamais-admin-campanha','api');
+INSERT INTO "project" VALUES('vv-viamais-admin',1,'/home/rmonico/repos/admin/admin/task','api');
+INSERT INTO "project" VALUES('vv-viamais-admin-campanha',1,'/home/rmonico/repos/admin/campanha/task','api');
 INSERT INTO "project" VALUES('vv-viamais-admin-comunicacao',1,'/home/rmonico/repos/admin/comunicacao/task','api');
 INSERT INTO "project" VALUES('vv-viamais-admin-ngx',1,'/home/rmonico/repos/admin/admin-front','api');
 INSERT INTO "project" VALUES('vv-viamais-admin-relatorios',1,'/home/rmonico/repos/admin/relatorios/task','api');
