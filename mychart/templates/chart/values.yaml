@@ -7,7 +7,18 @@ pod:
   tolerations: []
   affinity: {}
 
-hpa: {}
+{{ $ktmz_hpa := (.Files.Get (print "target/kustomize/" $.Values.base_path "/hpa.yaml") | fromYaml) -}}
+{{ if $ktmz_hpa -}}
+  {{ if or (hasKey $ktmz_hpa.spec "minReplicas") (hasKey $ktmz_hpa.spec "maxReplicas") -}}
+hpa:
+    {{- if $ktmz_hpa.spec.minReplicas }}
+  minReplicas: {{ $ktmz_hpa.spec.minReplicas }}
+    {{- end -}}
+    {{- if $ktmz_hpa.spec.maxReplicas }}
+  maxReplicas: {{ $ktmz_hpa.spec.maxReplicas }}
+    {{- end -}}
+  {{- end -}}
+{{- end }}
 
 fullnameOverride: ""
 
