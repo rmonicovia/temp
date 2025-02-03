@@ -40,7 +40,7 @@ service:
   port: {{ (index $ktmz_service.spec.ports 0).port }}
 {{ end -}}
 
-{{ $ktmz_deployment := (.Files.Get "target/kustomize/base/deployment.yaml" | fromYaml) -}}
+{{ $ktmz_deployment := (.Files.Get (print "target/kustomize/" $.Values.base_path "/deployment.yaml") | fromYaml) }}
 container:
   securityContext: {{ $ktmz_deployment.spec.template.spec.securityContext | toYaml }}
 
@@ -86,7 +86,7 @@ container:
   readinessProbe:
 {{ $container.readinessProbe | toYaml | indent 4 }}
 
-{{ $ktmz_configmap := (.Files.Get "target/kustomize/base/configmap.yaml" | fromYaml) -}}
+{{ $ktmz_configmap := (.Files.Get (print "target/kustomize/" $.Values.base_path "/configmap.yaml") | fromYaml) -}}
 configmap:
 {{- if $ktmz_configmap.data }}
   data:
