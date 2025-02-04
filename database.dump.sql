@@ -867,11 +867,6 @@ INSERT INTO "environment" VALUES('vv-apigw','pilot');
 INSERT INTO "environment" VALUES('vv-apigw','hlg');
 INSERT INTO "environment" VALUES('vv-apigw','stress');
 INSERT INTO "environment" VALUES('vv-apigw','prd');
-INSERT INTO "environment" VALUES('vv-apisync','stg');
-INSERT INTO "environment" VALUES('vv-apisync','pilot');
-INSERT INTO "environment" VALUES('vv-apisync','hlg');
-INSERT INTO "environment" VALUES('vv-apisync','stress');
-INSERT INTO "environment" VALUES('vv-apisync','prd');
 INSERT INTO "environment" VALUES('vv-atendimento','stg');
 INSERT INTO "environment" VALUES('vv-atendimento','pilot');
 INSERT INTO "environment" VALUES('vv-atendimento','hlg');
@@ -1176,7 +1171,6 @@ INSERT INTO "links" VALUES('sdp-metricas','https://github.com/viavarejo-internal
 INSERT INTO "links" VALUES('vv-adm','https://github.com/viavarejo-internal/vv-adm','github');
 INSERT INTO "links" VALUES('vv-admin-apigw','https://github.com/viavarejo-internal/vv-admin-apigw','github');
 INSERT INTO "links" VALUES('vv-apigw','https://github.com/viavarejo-internal/vv-apigw','github');
-INSERT INTO "links" VALUES('vv-apisync','https://github.com/viavarejo-internal/vv-apisync','github');
 INSERT INTO "links" VALUES('vv-atendimento','https://github.com/viavarejo-internal/vv-atendimento','github');
 INSERT INTO "links" VALUES('vv-autorizacao','https://github.com/viavarejo-internal/vv-autorizacao','github');
 INSERT INTO "links" VALUES('vv-carrinho','https://github.com/viavarejo-internal/vv-carrinho','github');
@@ -1234,7 +1228,6 @@ INSERT INTO "project" VALUES('trk-receiver-pedido',0,'/home/rmonico/repos/sdp-tr
 INSERT INTO "project" VALUES('vv-adm',1,'/home/rmonico/repos/adm/task','api');
 INSERT INTO "project" VALUES('vv-admin-apigw',1,'/home/rmonico/repos/admin-apigw/task','apigw');
 INSERT INTO "project" VALUES('vv-apigw',1,'/home/rmonico/repos/apigw/vendemais','apigw');
-INSERT INTO "project" VALUES('vv-apisync',1,'/home/rmonico/repos/sync/novasync/apisync','cronjob');
 INSERT INTO "project" VALUES('vv-atendimento',1,'/home/rmonico/repos/atendimento/task','api');
 INSERT INTO "project" VALUES('vv-autorizacao',1,'/home/rmonico/repos/autorizacao/task','api');
 INSERT INTO "project" VALUES('vv-carrinho',1,'/home/rmonico/repos/carrinho/task','api');
