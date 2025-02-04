@@ -22,9 +22,9 @@ where
     and p.enabled
     and p.kind="api" 
 
-group by p.name
-
-limit 2'''
+group by p.name'''
+# 
+# limit 1'''
 
     dbfile = '/home/rmonico/.config/sdb/databases/migracaoaks.sqlite'
 
