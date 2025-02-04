@@ -128,13 +128,12 @@ def main():
         os.chdir(proj.path)
 
         runstr('git switch --detach master')
-
         shutil.copytree('kustomize', sourcefolder)
 
-        runstr('git branch -D automigration')
-        runstr('git branch automigration master')
-
         runstr('git worktree remove --force ../automigration')
+        runstr('git branch -D automigration')
+
+        runstr('git branch automigration master')
         runstr('git worktree add ../automigration automigration')
 
         proj.path = os.path.realpath(join(proj.path + '/../automigration'))
