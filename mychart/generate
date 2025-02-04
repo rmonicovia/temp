@@ -1,95 +1,48 @@
 #!/usr/bin/bash
 
+[[ "$#" -ne 2 || "$1" =~ --?h(elp)? ]] && {
+    cat << EOF
+$(basename $0) <project_name> <environment or "base">
+
+Will generate chart/overlays/values-<env>.yaml based 
+
+project_name    Name of project (ex: vv-adm)
+environment     Environment name (ex: hlg)
+
+"source" folder must be create (from project/kustomize)
+EOF
+
+    exit 0
+}
+
+project="$1"
+envr="$2"
+
+if [[ $project == 'vv-adm' && $envr == 'prd' ]]; then
+    echo 'Mensagem de erro'
+    exit 1
+fi
+
 chart_path="$(dirname "$(realpath "$0")")"
+
+
+if [ "$envr" == "base" ]; then
+    ktmz_dir="base"
+else
+    ktmz_dir="overlays/$envr"
+fi
+
 echo "Chart path: \"$chart_path\""
+echo "Kustomize dir: \"$ktmz_dir\""
 
-# query='select "project=" || p.name || " ppath=" || p.path || " envr=" || e.name from project p left join environment e on (p.name = e.project) where p.github_access and p.kind="api" limit 10'
-query='select
-    "project=" || p.name || 
-    " ppath=" || p.path || 
-    " envs=(base " || group_concat(e.name, " ") || ")" 
-from 
-    project p 
-    left join environment e on 
-        (p.name = e.project) 
+if [ ! -d "source/$ktmz_dir" ]; then
+    echo "Warn: environment \"$envr\" not found on project \"$project\""
+    exit 0
+fi
 
-where
-    p.github_access 
-    and p.kind="api" 
+echo
 
-group by p.name 
-
-limit 2'
-
-IFS='
-'
-
-for vars in $(db run -nh "$query"); do
-    eval "$vars"
-    echo "Generating for project \"$project\", path=\"$ppath\""
-    echo
-
-    ## Testar
-    cd "$ppath"
-    git branch automigration master
-    git worktree add ../automigration automigration
-
-    cd ../automigration
-
-    ppath="$(dirname "$ppath")/automigration"
-    ## Testar
-
-    cd "$chart_path"
-
-    cp -r "$ppath/kustomize" source
-    mkdir -p "$ppath/chart/overlays"
-
-    for envr in ${envs[@]}; do
-        echo "Generating for env \"$envr\""
-
-        if [ "$envr" == "base" ]; then
-            ktmz_dir="base"
-        else
-            ktmz_dir="overlays/$envr"
-        fi
-
-        echo "Kustomize dir: \"$ktmz_dir\""
-        echo
-
-        if [ ! -d "source/$ktmz_dir" ]; then
-            echo "Warn: environment \"$envr\" not found on project \"$project\""
-            continue
-        fi
-
-        # TODO Separar isso aqui em um outro script, ou mover o resto do script
-        # para outro lugar
-        helm template \
-            --output-dir output \
-            --set "app_name=$project,node_selector=vendemais,ktmz_dir=$ktmz_dir" \
-            "$chart_path" \
-        || {
-            echo "Error running helm on project \"$project\" env \"$envr\"" 
-            continue
-        }
-
-        if [ "$envr" == "base" ]; then
-            dest="$ppath/chart/values.yaml"
-        else
-            dest="$ppath/chart/overlays/values-$envr.yaml"
-        fi
-        
-        cp output/mychart/templates/chart/values.yaml "$dest"
-    done
-
-    # cp templates
-    # cp output/Chart.yaml source/chart
-    # cp viaops.yaml
-    #
-    rm -rf source 
-
-    cd "$ppath"
-
-    git add -A
-
-    git commit --message "feat(CMOB-2670): esteiras migradas"
-done
+helm template \
+    --output-dir output \
+    --set "app_name=$project,node_selector=vendemais,ktmz_dir=$ktmz_dir" \
+    "$chart_path"

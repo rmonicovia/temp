@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+import os
+from os.path import join
+import shutil
+import sqlite3
+import subprocess
+from types import SimpleNamespace
+
+
+def _get_projects():
+    query = '''select
+    p.name,
+    p.path,
+    "base " || group_concat(e.name, " ")
+from 
+    project p 
+    left join environment e on 
+        (p.name = e.project) 
+
+where
+    p.github_access 
+    and p.kind="api" 
+
+group by p.name
+
+limit 2'''
+
+    dbfile = '/home/rmonico/.config/sdb/databases/migracaoaks.sqlite'
+
+    with (connection := sqlite3.connect(dbfile)) as db:
+        cursor = db.cursor()
+
+        rs = cursor.execute(query)
+
+        projects = list()
+
+        cols = ['name', 'path', 'envs']
+
+        for raw_row in rs:
+            row = dict()
+
+            for i, col in enumerate(cols):
+                row[col] = raw_row[i]
+
+            project = SimpleNamespace(**row)
+
+            project.envs = project.envs.split(' ')
+
+            projects.append(project)
+
+        return projects
+
+
+def run(*args):
+    return subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+
+def rundecode(*args):
+    return subprocess.run(args, stdout=subprocess.PIPE).stdout.decode()
+
+
+def main():
+    projects = _get_projects()
+
+    generatorfolder = os.getcwd()
+
+    sourcefolder = os.path.join(generatorfolder, 'source')
+
+    chartfolder = os.path.join(generatorfolder, 'output', 'mychart', 'templates', 'chart')
+
+    valuesfile = os.path.join(chartfolder, 'values.yaml')
+    chartfile = os.path.join(chartfolder, 'Chart.yaml')
+    # criar
+    # templatesdir = os.path.join(generatorfolder, 'templates')
+    # viaopsfile = os.path.join(chartfolder, 'viaops.yaml')
+
+    errors = dict()
+
+    bold = rundecode('tput', 'bold')
+    green = rundecode('tput', 'setaf', '10')
+    red = rundecode('tput', 'setaf', '1')
+    boldgreen = bold + green
+    boldred = bold + red
+    reset = rundecode('tput', 'sgr0')
+
+    ok_str = f'\r[ {boldgreen}OK{reset} ]'
+    err_str = f'\r[ {boldred}ER{reset} ]'
+    # breakpoint()
+    for proj in projects:
+        print(f'Migrating project "{proj.name}" ("{proj.path}")')
+
+        if os.path.exists(sourcefolder):
+            shutil.rmtree(sourcefolder)
+
+        os.chdir(proj.path)
+
+        shutil.copytree('kustomize', sourcefolder)
+
+        os.makedirs(os.path.join('chart', 'overlays'), exist_ok=True)
+
+        run('git branch automigration master'.split(' '))
+        run('git worktree ../automigration automigration'.split(' '))
+
+        proj.path = os.path.realpath(proj.path, '/../automigration')
+
+        os.chdir(generatorfolder)
+
+        if os.path.exists('errors'):
+            shutil.rmtree('errors')
+
+        for env in proj.envs:
+            print(f'[   ]  {env}', end='')
+
+            proc = run('./generate', proj.name, env)
+
+            if proc.returncode != 0:
+                print(err_str)
+                errors.setdefault(proj.name, list()).append(env)
+
+                errorsdir = os.path.join('errors', proj.name)
+                os.makedirs(errorsdir, exist_ok=True)
+
+                with open(os.path.join(errorsdir, env + '.out'), 'wb') as file:
+                    file.write(proc.stdout)
+
+                with open(os.path.join(errorsdir, env + '.err'), 'wb') as file:
+                    file.write(proc.stderr)
+
+                continue
+            
+            print(ok_str)
+
+            destchart = os.path.join(proj.path, 'chart')
+
+            if env == 'base':
+                destvalues = os.path.join(destchart, 'values.yaml')
+            else:
+                destvalues = os.path.join(destchart, 'overlays', f'values-{env}.yaml')
+
+            shutil.copyfile(valuesfile, destvalues)
+
+            if env == 'base':
+                destchartfile = os.path.join(destchart, 'Chart.yaml')
+                shutil.copyfile(chartfile, destchartfile)
+
+                # # criar
+                # desttemplatesdir = os.path.join(destchart, 'templates')
+                # shutil.copytree(templatesdir, desttemplatesdir)
+
+                # # Pegar o nome correto do arquivo, yaml ou yml
+                # destviaopsfile = os.path.join(destchart, '.github', 'workflows', 'viaops.yaml')
+                # shutil.copyfile(viaopsfile, destviaopsfile)
+
+        print()
+        shutil.rmtree(sourcefolder)
+
+        os.chdir(proj.path)
+
+        run('git add -A'.split(' '))
+        run('git commit --message'.split(' ') + ['feat(CMOB-2670): esteiras migradas'])
+            
+
+    if len(errors) > 0:
+        print()
+        print('Errors:')
+        for proj, envs in errors.items():
+            print(f'{proj}: {" ".join(envs)}')
+
+if __name__ == '__main__':
+    main()
