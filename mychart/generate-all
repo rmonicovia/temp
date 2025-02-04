@@ -63,6 +63,27 @@ def rundecode(*args):
     return subprocess.run(args, stdout=subprocess.PIPE).stdout.decode()
 
 
+def _remove_source_from_begin_of_file(path):
+    oldpath = path + '.old'
+    shutil.move(path, oldpath)
+
+    with open(oldpath) as oldfile:
+        with open(path, 'w') as newfile:
+            for line in oldfile.readlines():
+                if not line.startswith('# Source: '):
+                   newfile.write(line)
+
+    os.unlink(oldpath)
+
+
+def _remove_source_from_begin_of_files(path):
+    for obj in [join(path, o) for o in os.listdir(path)]:
+        if os.path.isdir(obj):
+            _remove_source_from_begin_of_files(obj)
+        elif os.path.isfile(obj) and obj.endswith('.yaml'):
+            _remove_source_from_begin_of_file(obj)
+
+
 def main():
     projects = _get_projects()
 
@@ -102,9 +123,14 @@ def main():
 
         os.chdir(proj.path)
 
+        runstr('git switch --detach master')
+
         shutil.copytree('kustomize', sourcefolder)
 
+        runstr('git branch -D automigration')
         runstr('git branch automigration master')
+
+        runstr('git worktree remove --force ../automigration')
         runstr('git worktree add ../automigration automigration')
 
         proj.path = os.path.realpath(join(proj.path + '/../automigration'))
@@ -163,6 +189,8 @@ def main():
         shutil.rmtree(sourcefolder)
 
         os.chdir(proj.path)
+
+        _remove_source_from_begin_of_files(join(proj.path, 'chart'))
 
         runstr('git add -A')
         run(*commitcommand)
