@@ -1270,7 +1270,7 @@ INSERT INTO "project" VALUES('vv-venda-api',1,'/home/rmonico/repos/venda-api/tas
 INSERT INTO "project" VALUES('vv-viamais-admin',1,'/home/rmonico/repos/admin/admin/task','api');
 INSERT INTO "project" VALUES('vv-viamais-admin-campanha',1,'/home/rmonico/repos/admin/campanha/task','api');
 INSERT INTO "project" VALUES('vv-viamais-admin-comunicacao',1,'/home/rmonico/repos/admin/comunicacao/task','api');
-INSERT INTO "project" VALUES('vv-viamais-admin-ngx',1,'/home/rmonico/repos/admin/admin-front','api');
+INSERT INTO "project" VALUES('vv-viamais-admin-ngx',1,'/home/rmonico/repos/admin/admin-front','front');
 INSERT INTO "project" VALUES('vv-viamais-admin-relatorios',1,'/home/rmonico/repos/admin/relatorios/task','api');
 INSERT INTO "project" VALUES('vv-viamais-aprovacao-api',0,NULL,'api');
 INSERT INTO "project" VALUES('vv-viamais-calculadora-pagamento-api-stable',0,NULL,'api');
