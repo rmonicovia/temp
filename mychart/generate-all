@@ -19,6 +19,7 @@ from
 
 where
     p.github_access 
+    and p.enabled
     and p.kind="api" 
 
 group by p.name
