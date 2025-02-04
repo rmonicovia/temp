@@ -63,25 +63,29 @@ def rundecode(*args):
     return subprocess.run(args, stdout=subprocess.PIPE).stdout.decode()
 
 
-def _remove_source_from_begin_of_file(path):
+def _valid_line(line):
+    return not line.startswith('# Source: ') and line != '---\n'
+
+
+def _sanitize_file(path):
     oldpath = path + '.old'
     shutil.move(path, oldpath)
 
     with open(oldpath) as oldfile:
         with open(path, 'w') as newfile:
             for line in oldfile.readlines():
-                if not line.startswith('# Source: '):
+                if _valid_line(line):
                    newfile.write(line)
 
     os.unlink(oldpath)
 
 
-def _remove_source_from_begin_of_files(path):
+def _sanitize_files(path):
     for obj in [join(path, o) for o in os.listdir(path)]:
         if os.path.isdir(obj):
-            _remove_source_from_begin_of_files(obj)
+            _sanitize_files(obj)
         elif os.path.isfile(obj) and obj.endswith('.yaml'):
-            _remove_source_from_begin_of_file(obj)
+            _sanitize_file(obj)
 
 
 def main():
@@ -190,7 +194,7 @@ def main():
 
         os.chdir(proj.path)
 
-        _remove_source_from_begin_of_files(join(proj.path, 'chart'))
+        _sanitize_files(join(proj.path, 'chart'))
 
         runstr('git add -A')
         run(*commitcommand)
