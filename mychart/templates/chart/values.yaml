@@ -41,7 +41,8 @@ def:
     port: {{ (index $ktmz_service.spec.ports 0).port }}
   {{ end -}}
 
-  {{ $ktmz_deployment := (.Files.Get (print "source/" $.Values.ktmz_dir "/deployment.yaml") | fromYaml) }}
+  {{ $ktmz_deployment := (.Files.Get (print "source/" $.Values.ktmz_dir "/deployment.yaml") | fromYaml) -}}
+  {{ if $ktmz_deployment -}}
   container:
     securityContext:
   {{ $ktmz_deployment.spec.template.spec.securityContext | toYaml | indent 4 }}
@@ -87,6 +88,7 @@ def:
 
     readinessProbe:
   {{ $container.readinessProbe | toYaml | indent 4 }}
+  {{ end -}}
 
   {{ $ktmz_configmap := (.Files.Get (print "source/" $.Values.ktmz_dir "/configmap.yaml") | fromYaml) -}}
   configmap:
