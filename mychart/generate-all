@@ -55,6 +55,10 @@ def run(*args):
     return subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
+def runstr(args):
+    return subprocess.run(args.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+
 def rundecode(*args):
     return subprocess.run(args, stdout=subprocess.PIPE).stdout.decode()
 
@@ -64,15 +68,15 @@ def main():
 
     generatorfolder = os.getcwd()
 
-    sourcefolder = os.path.join(generatorfolder, 'source')
+    sourcefolder = join(generatorfolder, 'source')
 
-    chartfolder = os.path.join(generatorfolder, 'output', 'mychart', 'templates', 'chart')
+    chartfolder = join(generatorfolder, 'output', 'mychart', 'templates', 'chart')
 
-    valuesfile = os.path.join(chartfolder, 'values.yaml')
-    chartfile = os.path.join(chartfolder, 'Chart.yaml')
+    valuesfile = join(chartfolder, 'values.yaml')
+    chartfile = join(chartfolder, 'Chart.yaml')
     # criar
-    # templatesdir = os.path.join(generatorfolder, 'templates')
-    # viaopsfile = os.path.join(chartfolder, 'viaops.yaml')
+    # templatesdir = join(generatorfolder, 'templates')
+    # viaopsfile = join(chartfolder, 'viaops.yaml')
 
     errors = dict()
 
@@ -85,6 +89,10 @@ def main():
 
     ok_str = f'\r[ {boldgreen}OK{reset} ]'
     err_str = f'\r[ {boldred}ER{reset} ]'
+
+    commitcommand = 'git commit --message'.split(' ')
+    commitcommand.append('feat(CMOB-2670): esteiras migradas')
+
     # breakpoint()
     for proj in projects:
         print(f'Migrating project "{proj.name}" ("{proj.path}")')
@@ -96,12 +104,12 @@ def main():
 
         shutil.copytree('kustomize', sourcefolder)
 
-        os.makedirs(os.path.join('chart', 'overlays'), exist_ok=True)
+        runstr('git branch automigration master')
+        runstr('git worktree add ../automigration automigration')
 
-        run('git branch automigration master'.split(' '))
-        run('git worktree ../automigration automigration'.split(' '))
+        proj.path = os.path.realpath(join(proj.path + '/../automigration'))
 
-        proj.path = os.path.realpath(proj.path, '/../automigration')
+        os.makedirs(join(proj.path, 'chart', 'overlays'), exist_ok=True)
 
         os.chdir(generatorfolder)
 
@@ -117,38 +125,38 @@ def main():
                 print(err_str)
                 errors.setdefault(proj.name, list()).append(env)
 
-                errorsdir = os.path.join('errors', proj.name)
+                errorsdir = join('errors', proj.name)
                 os.makedirs(errorsdir, exist_ok=True)
 
-                with open(os.path.join(errorsdir, env + '.out'), 'wb') as file:
+                with open(join(errorsdir, env + '.out'), 'wb') as file:
                     file.write(proc.stdout)
 
-                with open(os.path.join(errorsdir, env + '.err'), 'wb') as file:
+                with open(join(errorsdir, env + '.err'), 'wb') as file:
                     file.write(proc.stderr)
 
                 continue
             
             print(ok_str)
 
-            destchart = os.path.join(proj.path, 'chart')
+            destchart = join(proj.path, 'chart')
 
             if env == 'base':
-                destvalues = os.path.join(destchart, 'values.yaml')
+                destvalues = join(destchart, 'values.yaml')
             else:
-                destvalues = os.path.join(destchart, 'overlays', f'values-{env}.yaml')
+                destvalues = join(destchart, 'overlays', f'values-{env}.yaml')
 
             shutil.copyfile(valuesfile, destvalues)
 
             if env == 'base':
-                destchartfile = os.path.join(destchart, 'Chart.yaml')
+                destchartfile = join(destchart, 'Chart.yaml')
                 shutil.copyfile(chartfile, destchartfile)
 
                 # # criar
-                # desttemplatesdir = os.path.join(destchart, 'templates')
+                # desttemplatesdir = join(destchart, 'templates')
                 # shutil.copytree(templatesdir, desttemplatesdir)
 
                 # # Pegar o nome correto do arquivo, yaml ou yml
-                # destviaopsfile = os.path.join(destchart, '.github', 'workflows', 'viaops.yaml')
+                # destviaopsfile = join(destchart, '.github', 'workflows', 'viaops.yaml')
                 # shutil.copyfile(viaopsfile, destviaopsfile)
 
         print()
@@ -156,8 +164,8 @@ def main():
 
         os.chdir(proj.path)
 
-        run('git add -A'.split(' '))
-        run('git commit --message'.split(' ') + ['feat(CMOB-2670): esteiras migradas'])
+        runstr('git add -A')
+        run(*commitcommand)
             
 
     if len(errors) > 0:
