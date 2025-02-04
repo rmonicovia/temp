@@ -8,7 +8,7 @@ def:
     tolerations: []
     affinity: {}
 
-  {{ $ktmz_hpa := (.Files.Get (print "source/" $.Values.ktmz_dir "/hpa.yaml") | fromYaml) -}}
+  {{- $ktmz_hpa := (.Files.Get (print "source/" $.Values.ktmz_dir "/hpa.yaml") | fromYaml) -}}
   {{ if $ktmz_hpa -}}
     {{ if or (hasKey $ktmz_hpa.spec "minReplicas") (hasKey $ktmz_hpa.spec "maxReplicas") -}}
   hpa:
