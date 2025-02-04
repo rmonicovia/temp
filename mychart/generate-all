@@ -100,8 +100,8 @@ def main():
 
     valuesfile = join(chartfolder, 'values.yaml')
     chartfile = join(chartfolder, 'Chart.yaml')
+    templatesdir = join(generatorfolder, '_templates')
     # criar
-    # templatesdir = join(generatorfolder, 'templates')
     # viaopsfile = join(chartfolder, 'viaops.yaml')
 
     errors = dict()
@@ -131,13 +131,13 @@ def main():
         runstr('git switch --detach master')
         shutil.copytree('kustomize', sourcefolder)
 
-        runstr('git worktree remove --force ../automigration')
-        runstr('git branch -D automigration')
+        runstr('git worktree remove --force ../release-helm')
+        runstr('git branch -D release/HELM')
 
-        runstr('git branch automigration master')
-        runstr('git worktree add ../automigration automigration')
+        runstr('git branch release/HELM master')
+        runstr('git worktree add ../release-helm release/HELM')
 
-        proj.path = os.path.realpath(join(proj.path + '/../automigration'))
+        proj.path = os.path.realpath(join(proj.path + '/../release-helm'))
 
         os.makedirs(join(proj.path, 'chart', 'overlays'), exist_ok=True)
 
@@ -181,9 +181,8 @@ def main():
                 destchartfile = join(destchart, 'Chart.yaml')
                 shutil.copyfile(chartfile, destchartfile)
 
-                # # criar
-                # desttemplatesdir = join(destchart, 'templates')
-                # shutil.copytree(templatesdir, desttemplatesdir)
+                desttemplatesdir = join(destchart, 'templates')
+                shutil.copytree(templatesdir, desttemplatesdir)
 
                 # # Pegar o nome correto do arquivo, yaml ou yml
                 # destviaopsfile = join(destchart, '.github', 'workflows', 'viaops.yaml')
