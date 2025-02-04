@@ -1,0 +1,21 @@
+{{- define "service.tpl" -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.def.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+    {{- include "selectorLabels" . | nindent 4 }}
+spec:
+  type: {{ .Values.def.service.type }}
+  ports:
+    {{- range $servicePort := .Values.def.service.ports }}
+    - port: {{ $servicePort }}
+      targetPort: {{ $servicePort }}
+    {{- end }}
+  selector:
+    {{- include "selectorLabels" . | nindent 4 }}
+{{- end }}
+
+{{- include "render" (tuple . "service.tpl") -}}

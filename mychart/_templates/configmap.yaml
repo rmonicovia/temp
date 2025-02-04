@@ -1,0 +1,15 @@
+{{- define "configmap.tpl" -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.def.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Values.def.name }}
+    {{- include "chart.labels" . | nindent 4 }}
+    {{- include "selectorLabels" . | nindent 4 }}
+data:
+  {{- toYaml .Values.def.configmap.data | nindent 2 -}}
+{{- end -}}
+
+{{- include "render" (tuple . "configmap.tpl") -}}

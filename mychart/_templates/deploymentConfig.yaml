@@ -1,0 +1,45 @@
+{{- define "deploymentConfig.tpl" -}}
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: {{ .Values.def.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: "Rolling"
+  selector:
+    deploymentconfig: {{ .Values.def.name }}
+    {{- include "selectorLabels" . | nindent 4 }}
+
+  template:
+    metadata:
+      {{- with .Values.def.deployment.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        deploymentconfig: {{ .Values.def.name }}
+        {{- include "chart.labels" . | nindent 8 }}
+        {{- include "selectorLabels" . | nindent 8 }}
+    spec:
+      {{- include "deploymentContainer.tpl" . | nindent 6 }}
+      {{- with .Values.def.deployment.hostAliases }}
+      hostAliases:
+        {{- toYaml . | nindent 8}}
+      {{- end }}
+      {{- with .Values.def.deployment.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.def.deployment.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end -}}
+
+{{- if not .Values.azure -}}
+{{- include "render" (tuple . "deploymentConfig.tpl") -}}
+{{- end -}}

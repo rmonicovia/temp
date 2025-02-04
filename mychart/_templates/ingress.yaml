@@ -1,0 +1,45 @@
+{{- define "ingress.tpl" -}}
+{{- if .Values.def.ingresses }}
+kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: {{ .Values.def.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+    {{- include "selectorLabels" . | nindent 4}}
+  annotations:
+    nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, POST, OPTIONS
+    nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+spec:
+  ingressClassName: nginx
+  {{- range .Values.def.ingresses }}
+  {{- if .secretName}}
+  tls:
+    - hosts:
+        - {{ .host }}
+      secretName: {{ .secretName }}
+  {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.def.ingresses }}
+    - host: {{ .host }}
+      http:
+        paths:
+          - path: /{{ $.Values.def.name }}(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $.Values.def.name }}
+                port:
+                  number: 8080
+    {{- end }}
+{{- end -}}
+{{- end -}}
+
+{{- if .Values.azure }}
+{{- include "render" (tuple . "ingress.tpl") -}}
+{{- end -}}

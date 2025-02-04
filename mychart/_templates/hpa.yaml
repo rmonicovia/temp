@@ -1,0 +1,26 @@
+{{- define "hpa.tpl" -}}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.def.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+    {{- include "selectorLabels" . | nindent 4}}
+spec:
+  scaleTargetRef:
+    apiVersion: {{ ternary "apps/v1" "apps.openshift.io/v1" (.Values.azure) }}
+    kind: {{ternary "Deployment" "DeploymentConfig" (.Values.azure) }}
+    name: {{ .Values.def.name }}
+  minReplicas: {{ .Values.def.hpa.minReplicas | default 1 }}
+  maxReplicas: {{ .Values.def.hpa.maxReplicas | default 1 }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.def.hpa.cpuAverageUtilization | default 100 }}
+{{- end -}}
+
+{{- include "render" (tuple . "hpa.tpl") -}}
