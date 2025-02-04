@@ -8,15 +8,22 @@ def:
     tolerations: []
     affinity: {}
 
-  {{ $ktmz_hpa := (.Files.Get (print "source/" $.Values.ktmz_dir "/hpa.yaml") | fromYaml) -}}
-  {{- if $ktmz_hpa -}}
-    {{- if or (hasKey $ktmz_hpa.spec "minReplicas") (hasKey $ktmz_hpa.spec "maxReplicas") -}}
+  {{- $ktmz_hpa := (.Files.Get (print "source/" $.Values.ktmz_dir "/hpa.yaml") | fromYaml) }}
+  {{- if $ktmz_hpa }}
+    {{- if or
+      (hasKey $ktmz_hpa.spec "minReplicas")
+      (hasKey $ktmz_hpa.spec "maxReplicas")
+      (hasKey $ktmz_hpa.spec "cpuAverageUtilization") }}
+
   hpa:
       {{- if $ktmz_hpa.spec.minReplicas }}
     minReplicas: {{ $ktmz_hpa.spec.minReplicas }}
       {{- end }}
       {{- if $ktmz_hpa.spec.maxReplicas }}
     maxReplicas: {{ $ktmz_hpa.spec.maxReplicas }}
+      {{- end }}
+      {{- if $ktmz_hpa.spec.cpuAverageUtilization }}
+    cpuAverageUtilization: {{ $ktmz_hpa.spec.cpuAverageUtilization }}
       {{- end }}
     {{- end }}
   {{- end }}
@@ -34,68 +41,92 @@ def:
     # If not set and create is true, a name is generated using the fullname template
     name: ""
 
-  {{ $ktmz_service := (.Files.Get (print "source/" $.Values.ktmz_dir "/service.yaml") | fromYaml) -}}
-  {{ if $ktmz_service -}}
+  {{- $ktmz_service := (.Files.Get (print "source/" $.Values.ktmz_dir "/service.yaml") | fromYaml) }}
+  {{- if $ktmz_service }}
+
   service:
     type: {{ $ktmz_service.spec.type }}
     port: {{ (index $ktmz_service.spec.ports 0).port }}
-  {{ end -}}
+  {{- end }}
 
-  {{ $ktmz_deployment := (.Files.Get (print "source/" $.Values.ktmz_dir "/deployment.yaml") | fromYaml) -}}
-  {{ if $ktmz_deployment -}}
+  {{- $ktmz_deployment := (.Files.Get (print "source/" $.Values.ktmz_dir "/deployment.yaml") | fromYaml) }}
+  {{- if $ktmz_deployment }}
+
   container:
-    securityContext:
-  {{ $ktmz_deployment.spec.template.spec.securityContext | toYaml | indent 4 }}
-
     nodeSelector:
       app: {{ .Values.node_selector }}
+    {{- if and
+      ($ktmz_deployment.spec)
+      ($ktmz_deployment.spec.template)
+      ($ktmz_deployment.spec.template.spec) }}
+      {{- if $ktmz_deployment.spec.template.spec.securityContext }}
+    securityContext:
+{{ $ktmz_deployment.spec.template.spec.securityContext | toYaml | indent 4 }}
+      {{- end }}
 
-    {{ $container := (index $ktmz_deployment.spec.template.spec.containers 0) -}}
+      {{- if $ktmz_deployment.spec.template.spec.containers }}
+        {{- $container := (index $ktmz_deployment.spec.template.spec.containers 0) }}
+        {{- if eq (include "someItemHasKey" (list $container.envFrom "configMapRef")) "true" }}
 
-    {{ if eq (include "someItemHasKey" (list $container.envFrom "configMapRef")) "true" -}}
     configMaps:
-      {{- range $def := $container.envFrom }}
-        {{- if hasKey $def "configMapRef" }}
+          {{- range $def := $container.envFrom }}
+            {{- if hasKey $def "configMapRef" }}
       - {{ $def.configMapRef.name }}
-        {{- end }}
-      {{- end }}
-    {{- else -}}
+            {{- end }}
+          {{- end }}
+        {{- else }}
     configMaps: []
-    {{- end }}
-
-    {{ if eq (include "someItemHasKey" (list $container.envFrom "secretMapRef")) "true" -}}
-    secrets:
-      {{- range $def := $container.envFrom }}
-        {{- if hasKey $def "secretMapRef" }}
-      - {{ $def.secretMapRef.name }}
         {{- end }}
-      {{- end }}
-    {{- else -}}
+
+        {{- if eq (include "someItemHasKey" (list $container.envFrom "secretMapRef")) "true" }}
+
+    secrets:
+          {{- range $def := $container.envFrom }}
+            {{- if hasKey $def "secretMapRef" }}
+      - {{ $def.secretMapRef.name }}
+            {{- end }}
+          {{- end }}
+        {{- else }}
+
     secrets: []
-    {{- end }}
+        {{- end }}
+
+        {{- if $container.image }}
 
     image:
       registry: {{ index (regexSplit "/" $container.image -1) 0 }}
       pullPolicy: {{ $container.imagePullPolicy }}
       repository: {{ index (regexSplit "/" $container.image -1) 1 }}
       tag: ""
+        {{- end }}
+
+        {{- if $container.resource }}
 
     resources:
-  {{ $container.resources | toYaml | indent 4 }}
+{{ $container.resources | toYaml | indent 6 }}
+        {{- end }}
+
+        {{- if $container.livenessProbe }}
 
     livenessProbe:
-  {{ $container.livenessProbe | toYaml | indent 4 }}
+{{ $container.livenessProbe | toYaml | indent 6 }}
+        {{- end }}
+
+        {{- if $container.readinessProbe }}
 
     readinessProbe:
-  {{ $container.readinessProbe | toYaml | indent 4 }}
-  {{ end -}}
+{{ $container.readinessProbe | toYaml | indent 6 }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
 
-  {{ $ktmz_configmap := (.Files.Get (print "source/" $.Values.ktmz_dir "/configmap.yaml") | fromYaml) -}}
   configmap:
+  {{- $ktmz_configmap := (.Files.Get (print "source/" $.Values.ktmz_dir "/configmap.yaml") | fromYaml) }}
   {{- if $ktmz_configmap.data }}
     data:
-  {{ $ktmz_configmap.data | toYaml | indent 4 }}
-  {{ else }}
+{{ $ktmz_configmap.data | toYaml | indent 6 }}
+  {{- else }}
     data: {}
   {{- end }}
 
