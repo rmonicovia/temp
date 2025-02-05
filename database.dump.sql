@@ -1263,7 +1263,7 @@ INSERT INTO "project" VALUES('vv-jornada-painel-loja-ngx',1,'/home/rmonico/repos
 INSERT INTO "project" VALUES('vv-jornada-simulador-ngx-stable',0,NULL,'front',1,NULL,NULL);
 INSERT INTO "project" VALUES('vv-jornada-tradein-ngx',1,'/home/rmonico/repos/jornada-tradein-ngx/task','front',1,NULL,NULL);
 INSERT INTO "project" VALUES('vv-precificacao',1,'/home/rmonico/repos/precificacao/task','api',1,'8','precificacao');
-INSERT INTO "project" VALUES('vv-preco-concorrencia',1,'/home/rmonico/repos/preco-concorrencia/task','api',1,'8','preco-concorrencia');
+INSERT INTO "project" VALUES('vv-preco-concorrencia',1,'/home/rmonico/repos/preco-concorrencia/task','api',0,'8','preco-concorrencia');
 INSERT INTO "project" VALUES('vv-produto',1,'/home/rmonico/repos/produto/task','api',1,'8','produto');
 INSERT INTO "project" VALUES('vv-sms',1,'/home/rmonico/repos/sms/task','api',1,'8','sms');
 INSERT INTO "project" VALUES('vv-venda-api',1,'/home/rmonico/repos/venda-api/task','api',1,'8','venda-api');
