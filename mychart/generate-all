@@ -12,18 +12,18 @@ def _get_projects():
     p.name,
     p.path,
     "base " || group_concat(e.name, " ")
-from 
-    project p 
-    left join environment e on 
-        (p.name = e.project) 
+from
+    project p
+    left join environment e on
+        (p.name = e.project)
 
 where
-    p.github_access 
+    p.github_access
     and p.enabled
-    and p.kind="api" 
+    and p.kind="api"
 
 group by p.name'''
-# 
+#
 # limit 1'''
 
     dbfile = '/home/rmonico/.config/sdb/databases/migracaoaks.sqlite'
@@ -165,7 +165,7 @@ def main():
                     file.write(proc.stderr)
 
                 continue
-            
+
             print(ok_str)
 
             destchart = join(proj.path, 'chart')
@@ -197,7 +197,7 @@ def main():
 
         runstr('git add -A')
         run(*commitcommand)
-            
+
 
     if len(errors) > 0:
         print()
