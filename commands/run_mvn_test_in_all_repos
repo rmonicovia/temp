@@ -1,0 +1,4 @@
+echo 'Not runnable'
+exit 0
+
+for_each_repo bash -c 'p=$(dirname {1}) ; javaversion=$(db s . -w path\ like\ \"$p/%\"\ and\ kind=\"api\" -nh -c javaversion) ; export JAVA_HOME=/usr/lib/jvm/java-$javaversion-openjdk; mvn test'
