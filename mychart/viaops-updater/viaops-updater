@@ -70,7 +70,7 @@ class ViaOpsUpdater(StateMachine):
             xlrelease_step = self._update_xl_release_step(xlrelease_step)
 
             output.write(xlrelease_step)
-            
+
             with open('xlrelease-azure-step', 'rb') as xlrelease_azure:
                 output.write(xlrelease_azure.read())
 
