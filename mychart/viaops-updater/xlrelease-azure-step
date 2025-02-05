@@ -1,0 +1,14 @@
+
+
+    - name: XLRELEASE START AKS AZURE
+      uses: ./.convair-actions/xl-release-start
+      env:
+        DEPLOYMENT_STRATEGY: aks
+        CLUSTER_HLG: akspriv-plataformapedidos-hlg
+        CLUSTER_PRD: akspriv-plataformapedidos-prd
+      with:
+        tool: helm
+        flag: aks
+        provider: aks
+        xl-release-username: ${{ secrets.DEFAULT_XL_RELEASE_USERNAME }}
+        xl-release-password: ${{ secrets.DEFAULT_XL_RELEASE_PASSWORD }}

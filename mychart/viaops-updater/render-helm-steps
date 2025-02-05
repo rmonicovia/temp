@@ -1,0 +1,45 @@
+    - name: RENDER HELM TEMPLATE OPENSHIFT
+      uses: ./.convair-actions/render-helm
+      with:
+        flag: openshift
+        chart-path: ./chart
+        concat-namespace-flag: false
+        namespace-prefix: ${{ env.NAMESPACE_PREFIX }}
+        nexusUsername: ${{ secrets.NEXUS_USERNAME }}
+        nexusPassword: ${{ secrets.NEXUS_PASSWORD }}
+        repository-slug: ${{ env.PROJECT_NAME }}
+        values-stress: ./chart/overlays/values-stress.yml
+        values-sit: ./chart/overlays/values-sit.yml
+        values-hlg: ./chart/overlays/values-hlg.yml
+        values-stg: ./chart/overlays/values-stg.yml
+        values-prd: ./chart/overlays/values-prd.yml
+        helm-overrides: |-
+          {
+            "default": {
+              "container.image.tag": "${{ env.VERSION }}"
+            }
+          }
+
+    - name: RENDER HELM TEMPLATE AZURE
+      uses: ./.convair-actions/render-helm
+      with:
+        flag: aks
+        chart-path: ./chart
+        concat-namespace-flag: false
+        namespace-prefix: ${{ env.NAMESPACE_PREFIX }}
+        nexusUsername: ${{ secrets.NEXUS_USERNAME }}
+        nexusPassword: ${{ secrets.NEXUS_PASSWORD }}
+        repository-slug: ${{ env.PROJECT_NAME }}
+        values-stress: ./chart/overlays/values-stress.yml
+        values-sit: ./chart/overlays/values-sit.yml
+        values-hlg: ./chart/overlays/values-hlg.yml
+        values-stg: ./chart/overlays/values-stg.yml
+        values-prd: ./chart/overlays/values-prd.yml
+        helm-overrides: |-
+          {
+            "default": {
+              "container.image.tag": "${{ env.VERSION }}",
+              "azure": true
+            }
+          }
+

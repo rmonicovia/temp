@@ -1,0 +1,138 @@
+#!/usr/bin/env python
+import os
+import re
+import sys
+import shutil
+from statemachine import StateMachine
+from types import SimpleNamespace
+
+
+class ViaOpsUpdater(StateMachine):
+
+    _ktmz_action = 'uses: ./.convair-actions/render-kustomize'
+    _xlrelease_action = 'uses: ./.convair-actions/xl-release-start'
+    _step_start_regex = r'^(  )+- name: ?[\w\s]+'
+    _xlrelease_replacements = [
+            (r'^( *- name: XLRelease Start)(.*)', r'\1 OPENSHIFT\2'),
+            (r'^( *)tool: ?[a-z]+(.*)', r'\1tool: helm\2\n\1flag: openshift'),
+            ]
+    def __init__(self, fname, fname_updated):
+        super().__init__('finding kustomize step',
+                         before_state=self._reader,
+                         after_state=self._check_eof,
+                         after_finish=self._generate_viaops_updated,
+                         after_all=self._close_file)
+
+        self._file = open(fname, 'rb')
+        self._fname_updated = fname_updated
+        self.add_state('finding kustomize step', self._finding_kustomize_step)
+        self.add_state('finding step after kustomize', self._finding_step_after_kustomize)
+        self.add_state('finding xlrelease step', self._finding_xlrelease_step)
+        self.add_state('finding step after xlrelease', self._finding_step_after_xlrelease)
+        self._last_empty_line = SimpleNamespace(start=-1, end=-1)
+        self._ktmz_step = SimpleNamespace(start=-1, end=-1)
+        self._xlrelease_step = SimpleNamespace(start=-1, end=-1)
+        self._fsize = os.path.getsize(fname)
+
+
+    def _reader(self, state):
+        line = self._file.readline()
+
+        if len(line.strip()) == 0:
+            self._last_empty_line.end = self._file.tell()
+            self._last_empty_line.start = self._last_empty_line.end - len(line)
+
+        return line.decode()
+
+    def _eof_reached(self):
+        return self._file.tell() == self._fsize
+
+    def _check_eof(self, state, line):
+        if self._eof_reached():
+            self.finish()
+
+    def _generate_viaops_updated(self):
+        self._file.seek(0)
+
+        with open(self._fname_updated, 'wb') as output:
+            output.write(self._file.read(self._ktmz_step.start))
+
+            with open('render-helm-steps', 'rb') as render_helm:
+                output.write(render_helm.read())
+
+            self._file.seek(self._ktmz_step.end)
+            length = self._xlrelease_step.start - self._ktmz_step.end
+            output.write(self._file.read(length))
+
+            self._file.seek(self._xlrelease_step.start)
+            length = self._xlrelease_step.end - self._xlrelease_step.start
+            xlrelease_step = self._file.read(length)
+            xlrelease_step = self._update_xl_release_step(xlrelease_step)
+
+            output.write(xlrelease_step)
+            
+            with open('xlrelease-azure-step', 'rb') as xlrelease_azure:
+                output.write(xlrelease_azure.read())
+
+            self._file.seek(self._xlrelease_step.end)
+            output.write(self._file.read())
+
+    def _update_xl_release_step(self, step):
+        updated_step = step.decode().split('\n')
+
+        for i, line in enumerate(updated_step):
+            for expression, replacement in ViaOpsUpdater._xlrelease_replacements:
+                updated_step[i] = re.sub(expression, replacement, updated_step[i], flags=re.IGNORECASE)
+
+        return '\n'.join(updated_step).encode()
+
+    def _close_file(self, exception):
+        self._file.close()
+
+    def _finding_kustomize_step(self, line):
+        if not ViaOpsUpdater._ktmz_action in line:
+            return
+
+        self._ktmz_step.start = self._last_empty_line.end + 1
+
+        return 'finding step after kustomize'
+
+    def _finding_step_after_kustomize(self, line):
+        if not re.match(ViaOpsUpdater._step_start_regex, line):
+            return
+
+        self._ktmz_step.end = self._last_empty_line.end
+
+        return 'finding xlrelease step'
+
+    def _finding_xlrelease_step(self, line):
+        if not ViaOpsUpdater._xlrelease_action in line:
+            return
+
+        self._xlrelease_step.start = self._last_empty_line.end + 1
+
+        return 'finding step after xlrelease'
+
+    def _finding_step_after_xlrelease(self, line):
+        if re.match(ViaOpsUpdater._step_start_regex, line):
+            self._xlrelease_step.end = self._last_empty_line.end
+            self.finish()
+        elif self._eof_reached():
+            self._xlrelease_step.end = self._file.tell()
+            self.finish()
+
+
+def main():
+    fname = sys.argv[1]
+    fname_old = fname + '.old'
+
+    shutil.move(fname, fname_old)
+
+    finder = ViaOpsUpdater(fname_old, fname)
+
+    finder.run()
+
+    os.unlink(fname_old)
+
+if __name__ == '__main__':
+    main()
