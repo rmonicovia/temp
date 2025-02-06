@@ -11,13 +11,18 @@ class ViaOpsUpdater(StateMachine):
 
     _ktmz_action = 'uses: ./.convair-actions/render-kustomize'
     _xlrelease_action = 'uses: ./.convair-actions/xl-release-start'
+    _mvnsonar_action = 'uses: ./.convair-actions/maven-sonar'
+
     _step_start_regex = r'^(  )+- name: ?[\w\s]+'
     _xlrelease_replacements = [
-            (r'^( *- name:) ?XLRelease Start', r'\1 XLRelease Start Openshift'),
+            (r'^( *- name:) ?XLRelease Start.*', r'\1 XLRelease Start Openshift'),
             (r'^( *)tool: ?[a-z]+(.*)', r'\1tool: helm\2\n\1flag: openshift'),
             ]
+    _sonar_replacements = [
+            (r'^( *)image: ?.*', r'\1image: maven:3.8.3-openjdk-17'),
+            ]
     def __init__(self, fname, fname_updated):
-        super().__init__('finding kustomize step',
+        super().__init__('finding maven sonar step',
                          before_state=self._reader,
                          after_state=self._check_eof,
                          after_finish=self._generate_viaops_updated,
@@ -25,11 +30,14 @@ class ViaOpsUpdater(StateMachine):
 
         self._file = open(fname, 'rb')
         self._fname_updated = fname_updated
+        self.add_state('finding maven sonar step', self._finding_maven_sonar_step)
+        self.add_state('finding step after maven sonar', self._finding_step_after_maven_sonar)
         self.add_state('finding kustomize step', self._finding_kustomize_step)
         self.add_state('finding step after kustomize', self._finding_step_after_kustomize)
         self.add_state('finding xlrelease step', self._finding_xlrelease_step)
         self.add_state('finding step after xlrelease', self._finding_step_after_xlrelease)
         self._last_empty_line = SimpleNamespace(start=-1, end=-1)
+        self._mvnsonar_step = SimpleNamespace(start=-1, end=-1)
         self._ktmz_step = SimpleNamespace(start=-1, end=-1)
         self._xlrelease_step = SimpleNamespace(start=-1, end=-1)
         self._fsize = os.path.getsize(fname)
@@ -55,27 +63,61 @@ class ViaOpsUpdater(StateMachine):
         self._file.seek(0)
 
         with open(self._fname_updated, 'wb') as output:
-            output.write(self._file.read(self._ktmz_step.start-1))
+            # Grava tudo até o passo do Maven Sonar
+            output.write(self._file.read(self._mvnsonar_step.start))
 
-            with open('render-helm-steps', 'rb') as render_helm:
-                output.write(render_helm.read())
+            # Faz as substituições no bloco do Maven Sonar e grava
+            length = self._mvnsonar_step.end - self._file.tell()
+            mvnsonar_step = self._file.read(length)
+            mvnsonar_step = self._update_mvnsonar_step(mvnsonar_step)
 
-            self._file.seek(self._ktmz_step.end)
-            length = self._xlrelease_step.start - self._ktmz_step.end
-            output.write(self._file.read(length))
+            output.write(mvnsonar_step)
 
-            self._file.seek(self._xlrelease_step.start)
-            length = self._xlrelease_step.end - self._xlrelease_step.start
-            xlrelease_step = self._file.read(length)
-            xlrelease_step = self._update_xl_release_step(xlrelease_step)
+            # Substitui o passo do kustomize com o render-helm-steps
+            if self._ktmz_step.start > -1:
+                length = self._ktmz_step.start - self._file.tell()
+                output.write(self._file.read(length))
 
-            output.write(xlrelease_step)
+                with open('render-helm-steps', 'rb') as render_helm:
+                    output.write(render_helm.read())
 
-            with open('xlrelease-azure-step', 'rb') as xlrelease_azure:
-                output.write(xlrelease_azure.read())
+                self._file.seek(self._ktmz_step.end)
 
-            self._file.seek(self._xlrelease_step.end)
+            # Grava o que estiver entre o fim do kustomize e o começo do xlrelease
+            if self._xlrelease_step.start > -1:
+                length = self._xlrelease_step.start - self._file.tell()
+                output.write(self._file.read(length))
+
+
+                # Faz as substituições no passo xlrelease do openshift
+                self._file.seek(self._xlrelease_step.start)
+                length = self._xlrelease_step.end - self._xlrelease_step.start
+                xlrelease_step = self._file.read(length)
+                xlrelease_step = self._update_xl_release_step(xlrelease_step)
+
+                output.write(xlrelease_step)
+
+                self._file.seek(self._xlrelease_step.end)
+
+                # Adiciona os passos do xlrelease do aks
+                with open('xlrelease-azure-step', 'rb') as xlrelease_azure:
+                    output.write(xlrelease_azure.read())
+
+            # Grava o restante do arquivo
             output.write(self._file.read())
+
+    def _update_mvnsonar_step(self, step):
+        updated = step.decode().split('\n')
+
+        for i, line in enumerate(updated):
+            for expression, replacement in ViaOpsUpdater._sonar_replacements:
+                updated[i] = re.sub(expression, replacement, updated[i], flags=re.IGNORECASE)
+
+        if updated[-1] != '':
+            updated.append('')
+            updated.append('')
+
+        return '\n'.join(updated).encode()
 
     def _update_xl_release_step(self, step):
         updated_step = step.decode().split('\n')
@@ -93,11 +135,28 @@ class ViaOpsUpdater(StateMachine):
     def _close_file(self, exception):
         self._file.close()
 
+    def _finding_maven_sonar_step(self, line):
+        if not ViaOpsUpdater._mvnsonar_action in line:
+            return
+
+        self._mvnsonar_step.start = self._last_empty_line.end
+
+        return 'finding step after maven sonar'
+
+    def _finding_step_after_maven_sonar(self, line):
+        if not re.match(ViaOpsUpdater._step_start_regex, line):
+            return
+
+        self._mvnsonar_step.end = self._last_empty_line.end
+
+        return 'finding kustomize step'
+
+
     def _finding_kustomize_step(self, line):
         if not ViaOpsUpdater._ktmz_action in line:
             return
 
-        self._ktmz_step.start = self._last_empty_line.end + 1
+        self._ktmz_step.start = self._last_empty_line.end
 
         return 'finding step after kustomize'
 
@@ -113,7 +172,7 @@ class ViaOpsUpdater(StateMachine):
         if not ViaOpsUpdater._xlrelease_action in line:
             return
 
-        self._xlrelease_step.start = self._last_empty_line.end + 1
+        self._xlrelease_step.start = self._last_empty_line.end
 
         return 'finding step after xlrelease'
 
