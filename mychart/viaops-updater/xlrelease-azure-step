@@ -1,4 +1,4 @@
-    - name: XLRELEASE START AKS AZURE
+    - name: XLRelease Start AKS Azure
       uses: ./.convair-actions/xl-release-start
       env:
         DEPLOYMENT_STRATEGY: aks

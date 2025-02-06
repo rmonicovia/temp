@@ -13,7 +13,7 @@ class ViaOpsUpdater(StateMachine):
     _xlrelease_action = 'uses: ./.convair-actions/xl-release-start'
     _step_start_regex = r'^(  )+- name: ?[\w\s]+'
     _xlrelease_replacements = [
-            (r'^( *- name:) ?XLRelease Start', r'\1 XLRelease Start OPENSHIFT'),
+            (r'^( *- name:) ?XLRelease Start', r'\1 XLRelease Start Openshift'),
             (r'^( *)tool: ?[a-z]+(.*)', r'\1tool: helm\2\n\1flag: openshift'),
             ]
     def __init__(self, fname, fname_updated):
