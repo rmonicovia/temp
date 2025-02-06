@@ -10,3 +10,4 @@
         provider: aks
         xl-release-username: ${{ secrets.DEFAULT_XL_RELEASE_USERNAME }}
         xl-release-password: ${{ secrets.DEFAULT_XL_RELEASE_PASSWORD }}
+
