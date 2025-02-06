@@ -55,7 +55,7 @@ class ViaOpsUpdater(StateMachine):
         self._file.seek(0)
 
         with open(self._fname_updated, 'wb') as output:
-            output.write(self._file.read(self._ktmz_step.start))
+            output.write(self._file.read(self._ktmz_step.start-1))
 
             with open('render-helm-steps', 'rb') as render_helm:
                 output.write(render_helm.read())
