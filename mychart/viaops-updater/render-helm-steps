@@ -1,4 +1,4 @@
-    - name: RENDER HELM TEMPLATE OPENSHIFT
+    - name: Render Helm Template Openshift
       uses: ./.convair-actions/render-helm
       with:
         flag: openshift
@@ -20,7 +20,7 @@
             }
           }
 
-    - name: RENDER HELM TEMPLATE AZURE
+    - name: Render Helm Template Azure
       uses: ./.convair-actions/render-helm
       with:
         flag: aks
