@@ -1235,7 +1235,7 @@ INSERT INTO "project" VALUES('vv-cartao',1,'/home/rmonico/repos/cartao/task','ap
 INSERT INTO "project" VALUES('vv-catalogo',1,'/home/rmonico/repos/catalogo/task','api',1,'8','catalogo');
 INSERT INTO "project" VALUES('vv-comunicacao',1,'/home/rmonico/repos/comunicacao/task','api',1,'8','comunicacao');
 INSERT INTO "project" VALUES('vv-condicao-pagamento',1,'/home/rmonico/repos/condicao-pagamento/task','api',1,'8','condicao-pagamento');
-INSERT INTO "project" VALUES('vv-crediario',0,NULL,'api',1,'8',NULL);
+INSERT INTO "project" VALUES('vv-crediario',0,NULL,'api',0,'8',NULL);
 INSERT INTO "project" VALUES('vv-credito-cliente',1,'/home/rmonico/repos/credito-cliente/task','api',1,'8','credito-cliente');
 INSERT INTO "project" VALUES('vv-crm',1,'/home/rmonico/repos/crm/task','api',1,'8','crm');
 INSERT INTO "project" VALUES('vv-cupom',1,'/home/rmonico/repos/cupom/task','api',1,'8','cupom');
