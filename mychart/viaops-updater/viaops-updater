@@ -84,6 +84,10 @@ class ViaOpsUpdater(StateMachine):
             for expression, replacement in ViaOpsUpdater._xlrelease_replacements:
                 updated_step[i] = re.sub(expression, replacement, updated_step[i], flags=re.IGNORECASE)
 
+        if updated_step[-1] != '':
+            updated_step.append('')
+            updated_step.append('')
+
         return '\n'.join(updated_step).encode()
 
     def _close_file(self, exception):
