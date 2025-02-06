@@ -1217,6 +1217,17 @@ INSERT INTO "links" VALUES('vv-viamais-credito-api','https://github.com/viavarej
 INSERT INTO "links" VALUES('vv-viamais-negociacao-api','https://github.com/viavarejo-internal/vv-viamais-negociacao-api','github');
 INSERT INTO "links" VALUES('vv-viamais-notificacao-api','https://github.com/viavarejo-internal/vv-viamais-notificacao-api','github');
 INSERT INTO "links" VALUES('vv-vitrine','https://github.com/viavarejo-internal/vv-vitrine','github');
+INSERT INTO "links" VALUES('consolidate-pedido','https://github.com/viavarejo-internal/sdp-consolidate','github');
+INSERT INTO "links" VALUES('receiver-pedido-fidc-corp','https://github.com/viavarejo-internal/sdp-receiver-fidc-corp','github');
+INSERT INTO "links" VALUES('trk-receiver-pedido','https://github.com/viavarejo-internal/sdp-trk-receiver','github');
+INSERT INTO "links" VALUES('vv-jornada-simulador-ngx-stable','https://github.com/viavarejo-internal/vv-jornada-simulador-ngx-stable','github');
+INSERT INTO "links" VALUES('vv-viamais-aprovacao','https://github.com/viavarejo-internal/vv-viamais-aprovacao','github');
+INSERT INTO "links" VALUES('vv-viamais-calculadora-pagamento-api','https://github.com/viavarejo-internal/vv-viamais-calculadora-pagamento-api','github');
+INSERT INTO "links" VALUES('vv-viamais-carrinho-adapter-api','https://github.com/viavarejo-internal/vv-viamais-carrinho-adapter-api','github');
+INSERT INTO "links" VALUES('vv-viamais-catalogo-servicos-api','https://github.com/viavarejo-internal/vv-viamais-catalogo-servicos-api','github');
+INSERT INTO "links" VALUES('vv-viamais-condicao-pagamento-api','https://github.com/viavarejo-internal/vv-viamais-condicao-pagamento-api','github');
+INSERT INTO "links" VALUES('vv-viamais-simulador-api','https://github.com/viavarejo-internal/vv-viamais-simulador-api','github');
+INSERT INTO "links" VALUES('vv-crediario','https://github.com/viavarejo-internal/vv-crediario','github');
 CREATE TABLE "project" (name, github_access, path, kind, enabled, javaversion, xenv);
 INSERT INTO "project" VALUES('consolidate-pedido',0,'/home/rmonico/repos/sdp-consolidate/release','cronjob',1,NULL,NULL);
 INSERT INTO "project" VALUES('produto-event-sync',1,'/home/rmonico/repos/sync/novasync/produto-event-sync','cronjob',1,NULL,NULL);
