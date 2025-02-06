@@ -1,0 +1,34 @@
+exit 0
+
+# Faz a atualização em todos os repositórios
+_pwd="$PWD"
+for p in $(cat .repos); do
+    viaops=$p/.github/workflows/viaops.yaml
+    echo $p
+    python viaops-updater $viaops
+    echo
+    echo
+done
+cd $_pwd
+unset _pwd
+
+
+clean () {
+	git clean -f
+	git restore .
+    [ -f viaops.yml ] && mv viaops.yml viaops.yaml
+}
+
+c () {
+	yq . $(fnext get)/.github/workflows/viaops.yaml
+}
+
+n () {
+	cd $(fnext next)/.github/workflows/
+	yq . viaops.yaml &> /dev/null && echo OK || echo NOK
+}
+
+p () {
+	cd $(fnext prev)/.github/workflows/
+	yq . viaops.yaml &> /dev/null && echo OK || echo NOK
+}
