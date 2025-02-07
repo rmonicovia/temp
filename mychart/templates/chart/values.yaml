@@ -29,6 +29,9 @@ def:
     maxReplicas: 1
   {{- end }}
 
+  ingresses:
+    main:
+      host: api-figital.via.com.br
 
   {{- $ktmz_service := (.Files.Get (print "source/" $.Values.ktmz_dir "/service.yaml") | fromYaml) }}
   {{- if $ktmz_service }}
