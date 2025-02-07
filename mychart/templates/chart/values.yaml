@@ -22,7 +22,11 @@ def:
       {{- if $ktmz_hpa.spec.cpuAverageUtilization }}
     cpuAverageUtilization: {{ $ktmz_hpa.spec.cpuAverageUtilization }}
       {{- end }}
-    {{- end }}
+    {{- end -}}
+  {{- else }}
+  hpa:
+    minReplicas: 1
+    maxReplicas: 1
   {{- end }}
 
   serviceAccount:
