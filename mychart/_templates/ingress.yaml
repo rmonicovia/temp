@@ -16,14 +16,6 @@ metadata:
     nginx.ingress.kubernetes.io/use-regex: 'true'
 spec:
   ingressClassName: nginx
-  {{- range .Values.def.ingresses }}
-  {{- if .secretName}}
-  tls:
-    - hosts:
-        - {{ .host }}
-      secretName: {{ .secretName }}
-  {{- end }}
-  {{- end }}
   rules:
     {{- range .Values.def.ingresses }}
     - host: {{ .host }}
@@ -37,6 +29,7 @@ spec:
                 port:
                   number: 8080
     {{- end }}
+  {{- include "tlsSecrets.tpl" . | nindent 2 }}
 {{- end -}}
 {{- end -}}
 
