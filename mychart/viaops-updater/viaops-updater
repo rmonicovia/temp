@@ -21,13 +21,14 @@ class ViaOpsUpdater(StateMachine):
     _sonar_replacements = [
             (r'^( *)image: ?.*', r'\1image: maven:3.8.3-openjdk-17'),
             ]
-    def __init__(self, fname, fname_updated):
+    def __init__(self, env, fname, fname_updated):
         super().__init__('finding maven sonar step',
                          before_state=self._reader,
                          after_state=self._check_eof,
                          after_finish=self._generate_viaops_updated,
                          after_all=self._close_file)
 
+        self._env = env
         self._file = open(fname, 'rb')
         self._fname_updated = fname_updated
         self.add_state('finding maven sonar step', self._finding_maven_sonar_step)
@@ -97,11 +98,13 @@ class ViaOpsUpdater(StateMachine):
 
                 output.write(xlrelease_step)
 
-                self._file.seek(self._xlrelease_step.end)
-
                 # Adiciona os passos do xlrelease do aks
                 with open('xlrelease-azure-step', 'rb') as xlrelease_azure:
-                    output.write(xlrelease_azure.read())
+                    buffer = xlrelease_azure.read()
+                    buffer = buffer.encode()
+                    buffer = buffer.format(**self._env)
+                    buffer = buffer.decode()
+                    output.write(buffer)
 
             # Grava o restante do arquivo
             output.write(self._file.read())
@@ -114,8 +117,10 @@ class ViaOpsUpdater(StateMachine):
                 updated[i] = re.sub(expression, replacement, updated[i], flags=re.IGNORECASE)
 
         if updated[-1] != '':
+            if updated[-2] != '':
+                updated.append('')
             updated.append('')
-            updated.append('')
+
 
         return '\n'.join(updated).encode()
 
@@ -127,7 +132,8 @@ class ViaOpsUpdater(StateMachine):
                 updated_step[i] = re.sub(expression, replacement, updated_step[i], flags=re.IGNORECASE)
 
         if updated_step[-1] != '':
-            updated_step.append('')
+            if updated_step[-2] != '':
+                updated_step.append('')
             updated_step.append('')
 
         return '\n'.join(updated_step).encode()
@@ -185,13 +191,27 @@ class ViaOpsUpdater(StateMachine):
             self.finish()
 
 
+def _parse_env(variables):
+    env = dict()
+
+    for declaration in variables.split(','):
+        sep = declaration.find('=')
+        var, value = declaration[:sep], declaration[sep+1:]
+
+        env[var] = value
+
+    return env
+
+
 def main():
     fname = sys.argv[1]
     fname_old = fname + '.old'
 
+    env = _parse_env(sys.argv[2])
+
     shutil.move(fname, fname_old)
 
-    finder = ViaOpsUpdater(fname_old, fname)
+    finder = ViaOpsUpdater(env, fname_old, fname)
 
     finder.run()
 
