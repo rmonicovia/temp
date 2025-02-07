@@ -1,7 +1,7 @@
 exit 0
 
 # Faz a atualização em todos os repositórios
-_pwd="$PWD"
+pushd .
 for p in $(cat .repos); do
     viaops=$p/.github/workflows/viaops.yaml
     echo $p
@@ -9,8 +9,18 @@ for p in $(cat .repos); do
     echo
     echo
 done
-cd $_pwd
-unset _pwd
+popd
+
+
+pushd .
+for p in $(cat .repos-vendemais); do
+    cd $p
+    viaops=$p/.github/workflows/viaops.yaml
+    echo "$p"
+    sed -i 's/CLUSTER_(HLG|PRD): akspriv-plataformapedidos-(hlg|prd)/CLUSTER_\1: akspriv-vendemais-\2/' $viaops
+    echo
+done
+popd
 
 
 clean () {
@@ -31,4 +41,8 @@ n () {
 p () {
 	cd $(fnext prev)/.github/workflows/
 	yq . viaops.yaml &> /dev/null && echo OK || echo NOK
+}
+
+run () {
+	python viaops-updater ~/repos/$1/release-helm/.github/workflows/viaops.yaml "$@"
 }
