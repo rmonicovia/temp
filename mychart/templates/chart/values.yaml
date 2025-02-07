@@ -53,6 +53,10 @@ def:
   {{- $ktmz_deployment := (.Files.Get (print "source/" $.Values.ktmz_dir "/deployment.yaml") | fromYaml) }}
   {{- if $ktmz_deployment }}
 
+  deployment:
+    annotations:
+      - app: app
+
   container:
     nodeSelector:
       app: {{ .Values.node_selector }}
