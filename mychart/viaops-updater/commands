@@ -30,7 +30,7 @@ clean () {
 }
 
 c () {
-	yq . $(fnext get)/.github/workflows/viaops.yaml
+  helm template vv-atendimento ./chart --namespace viamais-sit --values chart/overlays/values-sit.yaml --set "container.image.tag=helm-6"
 }
 
 n () {
