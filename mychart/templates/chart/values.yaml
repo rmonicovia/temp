@@ -1,13 +1,10 @@
 azure: false
 
-def:
-  pod:
-    imagePullSecrets: []
-    securityContext: {}
-    annotations: {}
-    tolerations: []
-    affinity: {}
+fullnameOverride: ""
 
+nameOverride: ""
+
+def:
   {{- $ktmz_hpa := (.Files.Get (print "source/" $.Values.ktmz_dir "/hpa.yaml") | fromYaml) }}
   {{- if $ktmz_hpa }}
     {{- if or
@@ -27,10 +24,6 @@ def:
       {{- end }}
     {{- end }}
   {{- end }}
-
-  fullnameOverride: ""
-
-  nameOverride: ""
 
   serviceAccount:
     # Specifies whether a service account should be created
