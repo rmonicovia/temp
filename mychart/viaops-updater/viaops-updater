@@ -79,6 +79,7 @@ class ViaOpsUpdater(StateMachine):
                 length = self._ktmz_step.start - self._file.tell()
                 output.write(self._file.read(length))
 
+                # TODO Gerar de acordo com os ambientes disponíveis
                 with open('render-helm-steps', 'rb') as render_helm:
                     output.write(render_helm.read())
 
