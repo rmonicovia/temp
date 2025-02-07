@@ -29,14 +29,6 @@ def:
     maxReplicas: 1
   {{- end }}
 
-  serviceAccount:
-    # Specifies whether a service account should be created
-    create: true
-    # Annotations to add to the service account
-    annotations: {}
-    # The name of the service account to use.
-    # If not set and create is true, a name is generated using the fullname template
-    name: ""
 
   {{- $ktmz_service := (.Files.Get (print "source/" $.Values.ktmz_dir "/service.yaml") | fromYaml) }}
   {{- if $ktmz_service }}
@@ -45,6 +37,15 @@ def:
     type: {{ $ktmz_service.spec.type }}
     port: {{ (index $ktmz_service.spec.ports 0).port }}
   {{- end }}
+
+  serviceAccount:
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
 
   {{- $ktmz_deployment := (.Files.Get (print "source/" $.Values.ktmz_dir "/deployment.yaml") | fromYaml) }}
   {{- if $ktmz_deployment }}
