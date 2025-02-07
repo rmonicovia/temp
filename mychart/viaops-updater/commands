@@ -46,3 +46,7 @@ p () {
 run () {
 	python viaops-updater ~/repos/$1/release-helm/.github/workflows/viaops.yaml "$@"
 }
+
+ghelm() {
+  cd release-helm/.github/workflows
+}
