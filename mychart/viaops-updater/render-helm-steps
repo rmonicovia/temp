@@ -8,11 +8,10 @@
         nexusUsername: ${{ secrets.NEXUS_USERNAME }}
         nexusPassword: ${{ secrets.NEXUS_PASSWORD }}
         repository-slug: ${{ env.PROJECT_NAME }}
-        values-stress: ./chart/overlays/values-stress.yml
-        values-sit: ./chart/overlays/values-sit.yml
-        values-hlg: ./chart/overlays/values-hlg.yml
-        values-stg: ./chart/overlays/values-stg.yml
-        values-prd: ./chart/overlays/values-prd.yml
+        values-sit: ./chart/overlays/values-sit.yaml
+        values-hlg: ./chart/overlays/values-hlg.yaml
+        values-stg: ./chart/overlays/values-stg.yaml
+        values-prd: ./chart/overlays/values-prd.yaml
         helm-overrides: |-
           {
             "default": {
@@ -30,11 +29,10 @@
         nexusUsername: ${{ secrets.NEXUS_USERNAME }}
         nexusPassword: ${{ secrets.NEXUS_PASSWORD }}
         repository-slug: ${{ env.PROJECT_NAME }}
-        values-stress: ./chart/overlays/values-stress.yml
-        values-sit: ./chart/overlays/values-sit.yml
-        values-hlg: ./chart/overlays/values-hlg.yml
-        values-stg: ./chart/overlays/values-stg.yml
-        values-prd: ./chart/overlays/values-prd.yml
+        values-sit: ./chart/overlays/values-sit.yaml
+        values-hlg: ./chart/overlays/values-hlg.yaml
+        values-stg: ./chart/overlays/values-stg.yaml
+        values-prd: ./chart/overlays/values-prd.yaml
         helm-overrides: |-
           {
             "default": {
