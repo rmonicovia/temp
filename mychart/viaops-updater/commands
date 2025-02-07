@@ -1,7 +1,7 @@
 exit 0
 
 # Faz a atualização em todos os repositórios
-pushd .
+_pwd="$PWD"
 for p in $(cat .repos); do
     viaops=$p/.github/workflows/viaops.yaml
     echo $p
@@ -9,10 +9,10 @@ for p in $(cat .repos); do
     echo
     echo
 done
-popd
+cd "$_pwd"; unset _pwd
 
 
-pushd .
+_pwd="$PWD"
 for p in $(cat .repos-vendemais); do
     cd $p
     viaops=$p/.github/workflows/viaops.yaml
@@ -20,7 +20,7 @@ for p in $(cat .repos-vendemais); do
     sed -i 's/CLUSTER_(HLG|PRD): akspriv-plataformapedidos-(hlg|prd)/CLUSTER_\1: akspriv-vendemais-\2/' $viaops
     echo
 done
-popd
+cd "$_pwd"; unset _pwd
 
 
 clean () {
