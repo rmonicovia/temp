@@ -24,6 +24,7 @@ def:
       {{- end }}
     {{- end -}}
   {{- else }}
+
   hpa:
     minReplicas: 1
     maxReplicas: 1
@@ -38,7 +39,8 @@ def:
 
   service:
     type: {{ $ktmz_service.spec.type }}
-    port: {{ (index $ktmz_service.spec.ports 0).port }}
+    ports:
+      - {{ (index $ktmz_service.spec.ports 0).port }}
   {{- end }}
 
   serviceAccount:
@@ -55,17 +57,17 @@ def:
 
   deployment:
     annotations:
-      - app: app
+      app: {{ .Values.app_name }}
 
-  container:
-    nodeSelector:
-      app: {{ .Values.node_selector }}
+    container:
+      nodeSelector:
+        app: {{ .Values.node_selector }}
     {{- if and
       ($ktmz_deployment.spec)
       ($ktmz_deployment.spec.template)
       ($ktmz_deployment.spec.template.spec) }}
       {{- if $ktmz_deployment.spec.template.spec.securityContext }}
-    securityContext:
+      securityContext:
 {{ $ktmz_deployment.spec.template.spec.securityContext | toYaml | indent 4 }}
       {{- end }}
 
@@ -73,54 +75,54 @@ def:
         {{- $container := (index $ktmz_deployment.spec.template.spec.containers 0) }}
         {{- if eq (include "someItemHasKey" (list $container.envFrom "configMapRef")) "true" }}
 
-    configMaps:
+      configMaps:
           {{- range $def := $container.envFrom }}
             {{- if hasKey $def "configMapRef" }}
-      - {{ $def.configMapRef.name }}
+        - {{ $def.configMapRef.name }}
             {{- end }}
           {{- end }}
         {{- else }}
-    configMaps: []
+      configMaps: []
         {{- end }}
 
         {{- if eq (include "someItemHasKey" (list $container.envFrom "secretMapRef")) "true" }}
 
-    secrets:
+      secrets:
           {{- range $def := $container.envFrom }}
             {{- if hasKey $def "secretMapRef" }}
-      - {{ $def.secretMapRef.name }}
+        - {{ $def.secretMapRef.name }}
             {{- end }}
           {{- end }}
         {{- else }}
 
-    secrets: []
+      secrets: []
         {{- end }}
 
         {{- if $container.image }}
 
-    image:
-      registry: {{ index (regexSplit "/" $container.image -1) 0 }}
-      pullPolicy: {{ $container.imagePullPolicy }}
-      repository: {{ index (regexSplit "/" $container.image -1) 1 }}
-      tag: ""
+      image:
+        registry: {{ index (regexSplit "/" $container.image -1) 0 }}
+        pullPolicy: {{ $container.imagePullPolicy }}
+        repository: {{ index (regexSplit "/" $container.image -1) 1 }}
+        tag: ""
         {{- end }}
 
-        {{- if $container.resource }}
+        {{- if $container.resources }}
 
-    resources:
-{{ $container.resources | toYaml | indent 6 }}
+      resources:
+{{ $container.resources | toYaml | indent 8 }}
         {{- end }}
 
         {{- if $container.livenessProbe }}
 
-    livenessProbe:
-{{ $container.livenessProbe | toYaml | indent 6 }}
+      livenessProbe:
+{{ $container.livenessProbe | toYaml | indent 8 }}
         {{- end }}
 
         {{- if $container.readinessProbe }}
 
-    readinessProbe:
-{{ $container.readinessProbe | toYaml | indent 6 }}
+      readinessProbe:
+{{ $container.readinessProbe | toYaml | indent 8 }}
         {{- end }}
       {{- end }}
     {{- end }}
