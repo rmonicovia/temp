@@ -18,8 +18,7 @@ from
         (p.name = e.project)
 
 where
-    p.github_access
-    and p.enabled
+    p.enabled
     and p.kind="api"
 
 group by p.name'''
