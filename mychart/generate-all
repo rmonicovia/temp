@@ -8,47 +8,36 @@ from types import SimpleNamespace
 
 
 def _get_projects():
-    query = '''select
-    p.name,
-    p.path,
-    "base " || group_concat(e.name, " ")
-from
-    project p
-    left join environment e on
-        (p.name = e.project)
+    basement = [
+        'vv-admin-apigw',
+        'vv-apigw',
+        'vv-frontgw',
+        'vv-jornada-assinatura-ngx',
+        'vv-jornada-atendimento-ngx',
+        'vv-jornada-carrinho-ngx',
+        'vv-jornada-catalogo-ngx',
+        'vv-jornada-catalogo-servicos-ngx',
+        'vv-jornada-crediario-ngx',
+        'vv-jornada-crm-ngx',
+        'vv-jornada-gestao-pedidos-ngx',
+        'vv-jornada-home-ngx',
+        'vv-jornada-painel-loja-ngx',
+        'vv-jornada-simulador-ngx',
+        'vv-jornada-tradein-ngx',
+        'vv-viamais-admin-ngx',
+        ]
 
-where
-    p.enabled
-    and p.kind="api"
+    projects = list()
 
-group by p.name'''
-#
-# limit 1'''
+    for base in basement:
+        project = SimpleNamespace(
+                name=base,
+                path=f'/home/rmonico/repos/{base}/task',
+                envs=['base', 'hlg', 'stg', 'prd'])
 
-    dbfile = '/home/rmonico/.config/sdb/databases/migracaoaks.sqlite'
+        projects.append(project)
 
-    with (connection := sqlite3.connect(dbfile)) as db:
-        cursor = db.cursor()
-
-        rs = cursor.execute(query)
-
-        projects = list()
-
-        cols = ['name', 'path', 'envs']
-
-        for raw_row in rs:
-            row = dict()
-
-            for i, col in enumerate(cols):
-                row[col] = raw_row[i]
-
-            project = SimpleNamespace(**row)
-
-            project.envs = project.envs.split(' ')
-
-            projects.append(project)
-
-        return projects
+    return projects
 
 
 def run(*args):
