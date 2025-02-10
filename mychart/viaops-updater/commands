@@ -34,13 +34,11 @@ c () {
 }
 
 n () {
-	cd $(fnext next)/.github/workflows/
-	yq . viaops.yaml &> /dev/null && echo OK || echo NOK
+	cd $(fnext next)
 }
 
 p () {
-	cd $(fnext prev)/.github/workflows/
-	yq . viaops.yaml &> /dev/null && echo OK || echo NOK
+	cd $(fnext prev)
 }
 
 run () {
