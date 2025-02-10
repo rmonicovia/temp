@@ -22,7 +22,7 @@ class ViaOpsUpdater(StateMachine):
             (r'^( *)image: ?.*', r'\1image: maven:3.8.3-openjdk-17'),
             ]
     def __init__(self, env, fname, fname_updated):
-        super().__init__('finding maven sonar step',
+        super().__init__('finding kustomize step',
                          before_state=self._reader,
                          after_state=self._check_eof,
                          after_finish=self._generate_viaops_updated,
@@ -31,8 +31,6 @@ class ViaOpsUpdater(StateMachine):
         self._env = env
         self._file = open(fname, 'rb')
         self._fname_updated = fname_updated
-        self.add_state('finding maven sonar step', self._finding_maven_sonar_step)
-        self.add_state('finding step after maven sonar', self._finding_step_after_maven_sonar)
         self.add_state('finding kustomize step', self._finding_kustomize_step)
         self.add_state('finding step after kustomize', self._finding_step_after_kustomize)
         self.add_state('finding xlrelease step', self._finding_xlrelease_step)
@@ -64,22 +62,11 @@ class ViaOpsUpdater(StateMachine):
         self._file.seek(0)
 
         with open(self._fname_updated, 'wb') as output:
-            # Grava tudo até o passo do Maven Sonar
-            output.write(self._file.read(self._mvnsonar_step.start))
-
-            # Faz as substituições no bloco do Maven Sonar e grava
-            length = self._mvnsonar_step.end - self._file.tell()
-            mvnsonar_step = self._file.read(length)
-            mvnsonar_step = self._update_mvnsonar_step(mvnsonar_step)
-
-            output.write(mvnsonar_step)
-
             # Substitui o passo do kustomize com o render-helm-steps
             if self._ktmz_step.start > -1:
                 length = self._ktmz_step.start - self._file.tell()
                 output.write(self._file.read(length))
 
-                # TODO Gerar de acordo com os ambientes disponíveis
                 with open('render-helm-steps', 'rb') as render_helm:
                     output.write(render_helm.read())
 
@@ -102,9 +89,9 @@ class ViaOpsUpdater(StateMachine):
                 # Adiciona os passos do xlrelease do aks
                 with open('xlrelease-azure-step', 'rb') as xlrelease_azure:
                     buffer = xlrelease_azure.read()
-                    buffer = buffer.encode()
-                    buffer = buffer.format(**self._env)
                     buffer = buffer.decode()
+                    buffer = buffer.format(**self._env)
+                    buffer = buffer.encode()
                     output.write(buffer)
 
             # Grava o restante do arquivo
