@@ -1,0 +1,56 @@
+# vim: ft=yaml
+azure: str
+
+fullnameOverride: str
+
+nameOverride: str
+
+def:
+    name: string
+
+    hpa:
+        minReplicas: int (obrigatório)
+        maxReplicas: int (obrigatório)
+        cpuAverageUtilization: int
+
+    ingresses:
+        _ingress_name_:
+            host: str
+            domain: str
+
+    service:
+        ports: list
+        type: str
+
+    serviceAccount:
+        create: boolean
+        name: str
+
+    deployment:
+        annotations: list
+
+        imagePullSecrets: list
+
+        securityContext: list
+
+        container:
+            image:
+                repository: string (obrigatório)
+                registry: string
+                tag: string
+                pullPolicy: str
+            hostAliases: list
+            configMaps: list
+            secrets: list
+            securityContext: list
+            resources: list
+            livenessProbe: list
+            readinessProbe: list
+        nodeSelector: list
+        affinity: list
+        tolerations: list
+
+    configmap:
+        data: list
+
+forApps: list
