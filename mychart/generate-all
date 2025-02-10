@@ -116,23 +116,14 @@ def main():
 
         os.chdir(proj.path)
 
-        runstr('git switch --detach master')
         shutil.copytree('kustomize', sourcefolder)
 
-        runstr('git worktree remove --force ../release-helm')
-        runstr('git branch -D release/HELM')
+        chartdir = join(proj.path, 'chart')
 
-        runstr('git branch release/HELM master')
-        runstr('git worktree add ../release-helm release/HELM')
-
-        proj.path = os.path.realpath(join(proj.path + '/../release-helm'))
-
-        os.makedirs(join(proj.path, 'chart', 'overlays'), exist_ok=True)
+        if not os.path.exists(chartdir):
+            os.makedirs(join(chartdir, 'overlays'), exist_ok=True)
 
         os.chdir(generatorfolder)
-
-        if os.path.exists('errors'):
-            shutil.rmtree('errors')
 
         for env in proj.envs:
             print(f'[   ]  {env}', end='')
@@ -170,6 +161,8 @@ def main():
                 shutil.copyfile(chartfile, destchartfile)
 
                 desttemplatesdir = join(destchart, 'templates')
+                if os.path.exists(desttemplatesdir):
+                    shutil.rmtree(desttemplatesdir)
                 shutil.copytree(templatesdir, desttemplatesdir)
 
                 # # Pegar o nome correto do arquivo, yaml ou yml
